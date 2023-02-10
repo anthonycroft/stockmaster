@@ -1,15 +1,15 @@
 .container {
-  position: relative;
+  /* position: relative; */
 }
 
-.image {
+/* .image {
   position: absolute;
   height: 100px;
   top: 0;
   left: 0;
-}
+} */
 
-.image:nth-child(2) {
+/* .image:nth-child(2) {
   top: 100px;
 }
 
@@ -23,5 +23,18 @@
   top: 400px;
 }
 .image:nth-child(6) {
-  top: 500px;
+  /* top: 500px; */
+ /* */
+
+.thumbnail {
+  width: 75%;
+  display: inline-block !important;
+}
+
+.jumbotron {
+  padding-top: 0 0 !important;
+}
+
+.gainers {
+  display: inline-block !important;
 }

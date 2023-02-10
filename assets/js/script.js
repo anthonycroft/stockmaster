@@ -3,19 +3,19 @@
 
 
 var apiKey = "7p8pLHEtbHWAcDB5wPeMpcoNiHTQw4Am";
+var stocks;
+var timeSeriesData = []; // a JSON object to store the retrieved prices by day/ticker from polygon
 
 function getURL(ticker) {
 
-  dateStart = '2023-01-01'
-  dateEnd = '2023-01-31'
-
-  const div = d3.selectAll("div");
+  // get stock prices for user's portfolio for the last 30 days for thumbnail image charts
+  var dateEnd = moment().subtract(1, 'days').format('YYYY-MM-DD')
+  var dateStart = moment(dateEnd).subtract(30, 'days').format('YYYY-MM-DD')
 
   // https://api.polygon.io/v1/open-close/AAPL/2023-01-09?adjusted=true&apiKey=7p8pLHEtbHWAcDB5wPeMpcoNiHTQw4Am - end point for open/close prices
   // queryURL is the url we'll use to query the API
   var queryURL = "https://api.polygon.io/v2/aggs/ticker/" + `${ticker}/range/1/day/${dateStart}/${dateEnd}?apiKey=${apiKey}`;
 
-  // console.log(queryURL)
   return queryURL;
 }
 
@@ -23,6 +23,7 @@ function sendRequest (index, ticker) {
   // Build the query URL for the ajax request to the polygon.io site
   // const ticker = 'AAPL';
   var stockURL = getURL(ticker);
+  console.log(stockURL);
 
   // stockURL = "https://image-charts.com/chart.js/2.8.0?bkg=white&c={type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'],datasets:[{backgroundColor:'rgba(255,150,150,0.5)',borderColor:'rgb(255,150,150)',data:[-23,64,21,53,-39,-30,28,-10],label:'Dataset',fill:'origin'}]}}"
 
@@ -35,49 +36,67 @@ function sendRequest (index, ticker) {
     .then(data => {
       const prices = data.results.map(result => ({
         timestamp: result.t,
-        closingPrice: result.c
+        closingPrice: result.c,
       }));
 
+      // add the current stocks prices to timeSeriesData - which we will need to portfolio valuation; 
+      // this is in a more convenient format for that purpose
+
+      data.results.forEach(result => {
+        let dataPoint = {
+          stock: data.ticker,
+          date: new Date(result.t),
+          price: result.c
+        };
+
+        timeSeriesData.push(dataPoint);
+      });
+
+      // const timestamps = prices.map(price => moment(price.timestamp).format("MM/DD/YYYY"));
       const timestamps = prices.map(price => price.timestamp);
       const closingPrices = prices.map(price => price.closingPrice);
 
-      console.log("timestamps: " + timestamps);
-      console.log("closingPrices: " + closingPrices);
-
-      pasteData(timestamps, closingPrices, index);
+      // call function to create the thumbnails
+      createImages(timestamps, closingPrices, index);
+      // produce portfolio valuation(s)
+      getValuation();
       
     })
     .catch(error => console.error(error));
 }
 
-function pasteData(timestamps,closingPrices, index ) {
+function createImages(timestamps,closingPrices, index ) {
 
-  objJSON = "{" +
-    "type:'line'," +
-    "data:{" +
-      "labels:[" + timestamps + "]," +
-      "datasets:[" +
-        "{" +
-          "backgroundColor:'rgba(255,150,150,0.5)'," +
-          "borderColor:'rgb(255,150,150)'," +
-          "data:[" + closingPrices + "]," +
-          "label:'Dataset'," +
-          "fill:'origin'" +
-        "}" +
-      "]" +
-    "}," +
-    "options: {" +
-      "indexAxis: 'y'," +
-      "scales: {" +
-        "x: {" +
-          "beginAtZero: true" +
-        "}" +
-      "}" +
-    "}" +
-  "}";
+  // convert unix style dates to standard display format
+  const formattedTimestamps = timestamps.map(timestamp => moment(timestamp).format('DD/MM/YYYY'));
 
-  console.log("obJSON is: ")  + objJSON
+  objJSON = JSON.stringify({
+    type:'line',
+    data:{
+      labels: formattedTimestamps,
+      datasets:[
+        {
+          backgroundColor:'rgba(255,150,150,0.5)',
+          borderColor:'rgb(255,150,150)',
+          data: closingPrices,
+          label:'Dataset',
+          fill:'origin'
+        }
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      scales: {
+        x: {
+          beginAtZero: false
+        }
+      }
+    }
+  });
 
+  // console.log("obJSON is: ")  + objJSON
+
+  // send the API request to image-charts.com for the thumbnail image
   imgURL = "https://image-charts.com/chart.js/2.8.0?bkg=white&c=" + objJSON;
 
   $("<img>", {
@@ -85,8 +104,9 @@ function pasteData(timestamps,closingPrices, index ) {
     width: "200",
     height: "100",
     id: "chtThumb" + index + 1,
-    class: "image"
- }).appendTo(".container");
+    class: "image",
+    title: stocks[index]
+ }).appendTo(".thumbnail");
 
   console.log(imgURL);
 }
@@ -174,37 +194,136 @@ function AreaChart(data, {
   return svg.node();
 }
 
-init();
+function getValuation() {
+  // here we want to create a valuation of the portfolio over the last 12mths for each day
+  // NB This function will change when we have stored data we can retrieve, sample data 
+  // included below for testing purposes
+
+  // issue: for each stock in the portfolio, was it owned at the valuation date ?
+  var transactions = [  
+    { "date": "2022-01-01",    "qty": 100,    "ticker": "AAPL" },  
+    { "date": "2022-01-02",    "qty": 150,    "ticker": "GOOGL" },
+    { "date": "2022-01-02",    "qty": 300,    "ticker": "JNJ" },
+    { "date": "2022-01-02",    "qty": 60,     "ticker": "PHR" },
+    { "date": "2022-01-02",    "qty": 450,    "ticker": "ARKW" },
+    { "date": "2022-01-02",    "qty": 256,    "ticker": "MASS" },
+    { "date": "2022-01-02",    "qty": 325,    "ticker": "NVDA" },
+    { "date": "2022-01-02",    "qty": 25,     "ticker": "ARKF" },
+    { "date": "2022-01-02",    "qty": 2000,   "ticker": "CELZ" },
+    { "date": "2022-01-02",    "qty": 1250,   "ticker": "SKLZ" },
+    { "date": "2022-01-02",    "qty": -20,    "ticker": "AAPL" },
+    { "date": "2022-01-02",    "qty": 320,    "ticker": "IRDM" },
+    { "date": "2022-01-02",    "qty": 40,     "ticker": "PCAR" },
+    { "date": "2022-01-02",    "qty": 862,    "ticker": "NIU" },
+    { "date": "2022-01-02",    "qty": 245,    "ticker": "PHR" },
+    { "date": "2022-01-02",    "qty": 653,    "ticker": "CELZ" },
+    { "date": "2022-01-02",    "qty": 652,    "ticker": "BEAM" },
+    { "date": "2022-01-02",    "qty": 896,    "ticker": "SPFR" },
+    { "date": "2022-01-02",    "qty": 326,    "ticker": "ARKF" },
+    { "date": "2022-01-02",    "qty": 562,    "ticker": "GFAIW" },
+    { "date": "2022-01-02",    "qty": 254,    "ticker": "PGRWW" },
+    { "date": "2022-01-02",    "qty": 214,    "ticker": "AAPL" }
+  ]
+
+  // var stockValue = getPrice(timeSeriesData, '2023-02-07', "AAPL");
+  // console.log("Stock Value for APPL on 2023-01-09 is " + stockValue);
+  // return;
+  // below function shows expected format of the saved data (Andrea is working on this)
+  // var transactions = JSON.parse(localStorage.getItem("transactions"));
+// return
+
+  // Get the current date and the date 12 months ago
+  var now = new Date();
+  var oneYearAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+  console.log("OneYearAgo is " + oneYearAgo);
+
+  // Create an object to store the portfolio value for each date
+  var portfolio = {};
+
+  // Set the start date to the date 12 months ago
+  var startDate = oneYearAgo;
+
+  // Loop through each day and update the portfolio value
+  var yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  while (startDate < yesterday) {
+
+    if (isWeekend(startDate)) { 
+      startDate.setDate(startDate.getDate() + 1);
+      continue
+    }
+    // Initialize the portfolio value for the current date
+    // portfolio[startDate.toISOString().substring(0, 10)] = 0;
+
+    // Loop through the transactions and update the portfolio value for the current date
+    for (var i = 0; i < transactions.length; i++) {
+      var transaction = transactions[i];
+      var transactionDate = new Date(transaction.date);
+
+      // Only consider transactions that were made on or before the current date
+      if (transactionDate <= startDate) {
+
+        console.log("transactionDate is " + transactionDate);
+        console.log("startDate is " + startDate);
+        // return;
+        // Get the current value of the stock for the transaction date
+        var stockValue = getPrice(timeSeriesData, startDate, transaction.ticker);
+        
+        // if price is null assume exchange was closed
+        if (stockValue !== null) {
+          // Update the portfolio value for the current date
+          if (portfolio[startDate.toISOString().substring(0, 10)] === undefined) {
+            portfolio[startDate.toISOString().substring(0, 10)] = 0;
+          }
+          portfolio[startDate.toISOString().substring(0, 10)] += transaction.qty * stockValue;
+          console.log("Date: " + startDate + "Portfolio Value: " + portfolio[startDate.toISOString().substring(0, 10)])
+        }
+      }
+    }
+
+    // Increment the start date by one day
+    startDate.setDate(startDate.getDate() + 1);
+  }
+
+  // Log the portfolio value for each date
+  for (var date in portfolio) {
+    console.log(date + ": $" + portfolio[date]);
+  }
+}
+
+function isWeekend(date) {
+  let day = date.getDay();
+  return day === 0 || day === 6;
+}
+
+  // Function to get the current value of a stock for a given date
+  function getPrice(timeSeriesData, date, stock) {
+    date = moment(date).format("YYYY-MM-DD")
+    let filteredData = timeSeriesData.filter(dataPoint => {
+      return moment(dataPoint.date).format("YYYY-MM-DD") === date &&
+             dataPoint.stock === stock;
+    });
+  
+    if (filteredData.length > 0) {
+      return filteredData[0].price;
+    } else {
+      return null;
+    }
+  }
 
 function init() {
 
-  // stocks = ['MSFT']
+  // the below are used for testing as we dont have the user inputs yet
 
   stocks = ['MSFT','AAPL','AMZN','GOOGL','JNJ','JPM','PG','V', 'GOLD', 'META','SGHLW', 'SAMAW', 'GFAIW', 'CELZ', 'PGRWW',
-  "DOCU",
-  "DDD",
-  "NIU",
-  "ARKF",
-  "NVDA",
-  "SKLZ",
-  "PCAR",
-  "MASS",
-  "PSTI",
-  "SPFR",
-  "TREE",
-  "PHR",
-  "IRDM",
-  "BEAM",
-  "ARKW",
-  "ARKK",
-  "ARKG",
-  "PSTG",
-  "SQ",
-  "IONS",
-  "SYRS"]
+  "DOCU","DDD", "NIU","ARKF","NVDA","SKLZ","PCAR","MASS","PSTI","SPFR","TREE","PHR","IRDM","BEAM","ARKW","ARKK","ARKG",
+  "PSTG","SQ","IONS","SYRS"]
 
   $.each(stocks, function(index, value) {
     sendRequest(index, value);
- });
+  });
 
 }
+
+init();
