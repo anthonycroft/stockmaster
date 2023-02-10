@@ -13,17 +13,97 @@
 </head>
 
 <body>
-  <header class="container-fluid text-center text-white p-2 weather-header">
-    <h1>My Portfolio</h1>
+  <header>
+    <div class="jumbotron jumbotron-fluid pt-0">
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget pt-0"></div>
+        <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/markets/" rel="noopener" target="_blank"><span class="blue-text">Markets today</span></a> </div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+          {
+          "symbols": [
+            {
+              "proName": "FOREXCOM:SPXUSD",
+              "title": "S&P 500"
+            },
+            {
+              "proName": "FOREXCOM:NSXUSD",
+              "title": "US 100"
+            },
+            {
+              "proName": "FX_IDC:EURUSD",
+              "title": "EUR/USD"
+            },
+            {
+              "proName": "BITSTAMP:BTCUSD",
+              "title": "Bitcoin"
+            },
+            {
+              "proName": "BITSTAMP:ETHUSD",
+              "title": "Ethereum"
+            }
+          ],
+            "showSymbolLogo": true,
+            "colorTheme": "light",
+            "isTransparent": false,
+            "displayMode": "adaptive",
+            "locale": "en"
+          }
+        </script>
+      </div>
+      <div class="container">
+
+        <h1 class="display-4">My Portfolio Tracker</h1>
+        <p class="lead">Keep track of your portfolio.</p>
+      </div>
+    </div>
   </header>
+  <section>
+
+    <div class="d-flex">
+      <div class="tradingview-widget-container gainers">
+        <div class="tradingview-widget-container__widget"></div>
+        <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/markets/stocks-usa/" rel="noopener" target="_blank"><span class="blue-text">Stocks today</span></a> by TradingView</div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-hotlists.js" async>
+        {
+        "colorTheme:": "light",
+        "dateRange": "12M",
+        "exchange": "US",
+        "showChart": true,
+        "locale": "en",
+        "largeChartUrl": "",
+        "isTransparent": false,
+        "showSymbolLogo": false,
+        "showFloatingTooltip": false,
+        "width": "400",
+        "height": "600",
+        "plotLineColorGrowing": "rgba(41, 98, 255, 1)",
+        "plotLineColorFalling": "rgba(41, 98, 255, 1)",
+        "gridLineColor": "rgba(42, 46, 57, 0)",
+        "scaleFontColor": "rgba(134, 137, 147, 1)",
+        "belowLineFillColorGrowing": "rgba(41, 98, 255, 0.12)",
+        "belowLineFillColorFalling": "rgba(41, 98, 255, 0.12)",
+        "belowLineFillColorGrowingBottom": "rgba(41, 98, 255, 0)",
+        "belowLineFillColorFallingBottom": "rgba(41, 98, 255, 0)",
+        "symbolActiveColor": "rgba(41, 98, 255, 0.12)"
+      }
+        </script>
+      </div>
+    <div class="thumbnail col-lg-6">
+  <!-- <header class="container-fluid text-center text-white p-2 weather-header">
+    <h1>My Portfolio</h1>
+  </header> -->
 
   <!-- max-width for ultra wide resolutions -->
   <!-- <div class="container" style="max-width: 1400px"> -->
     <!-- <div class="row justify-content-between" id="outer"> -->
-      <canvas id="myChart"></canvas>
-    <div class="container">
-
+      
     </div>
+  </div>
+  </section>
+    <canvas id="myChart"></canvas>
+ 
+
+</script>
       <!-- Moment.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
   <!-- jQuery -->
@@ -31,6 +111,9 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
   <script src="https://d3js.org/d3.v6.min.js"></script>
   <script src="assets/js/script.js"></script>
+
+   <script async charset="utf-8" src="https://widgets.fxempire.com/widget.js" ></script>
+
 </body>
 
 </html>
