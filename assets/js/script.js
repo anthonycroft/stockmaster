@@ -1,6 +1,3 @@
-// import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
-
-
 
 var apiKey = "7p8pLHEtbHWAcDB5wPeMpcoNiHTQw4Am";
 var stocks;
@@ -12,8 +9,6 @@ function getURL(ticker) {
   var dateEnd = moment().subtract(1, 'days').format('YYYY-MM-DD')
   var dateStart = moment(dateEnd).subtract(30, 'days').format('YYYY-MM-DD')
 
-  // https://api.polygon.io/v1/open-close/AAPL/2023-01-09?adjusted=true&apiKey=7p8pLHEtbHWAcDB5wPeMpcoNiHTQw4Am - end point for open/close prices
-  // queryURL is the url we'll use to query the API
   var queryURL = "https://api.polygon.io/v2/aggs/ticker/" + `${ticker}/range/1/day/${dateStart}/${dateEnd}?apiKey=${apiKey}`;
 
   return queryURL;
@@ -25,12 +20,6 @@ function sendRequest (index, ticker) {
   var stockURL = getURL(ticker);
   console.log(stockURL);
 
-  // stockURL = "https://image-charts.com/chart.js/2.8.0?bkg=white&c={type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'],datasets:[{backgroundColor:'rgba(255,150,150,0.5)',borderColor:'rgb(255,150,150)',data:[-23,64,21,53,-39,-30,28,-10],label:'Dataset',fill:'origin'}]}}"
-
-  // console.log("ticker is " + stockURL)
-
-  // const ctx = document.getElementById('myChart').getContext('2d');
-
   fetch(stockURL)
     .then(response => response.json())
     .then(data => {
@@ -39,8 +28,8 @@ function sendRequest (index, ticker) {
         closingPrice: result.c,
       }));
 
-      // add the current stocks prices to timeSeriesData - which we will need to portfolio valuation; 
-      // this is in a more convenient format for that purpose
+      // add the current stock prices to timeSeriesData 
+      // this is in a more convenient format for valuation and other purposes
 
       data.results.forEach(result => {
         let dataPoint = {
@@ -225,13 +214,6 @@ function getValuation() {
     { "date": "2022-01-02",    "qty": 214,    "ticker": "AAPL" }
   ]
 
-  // var stockValue = getPrice(timeSeriesData, '2023-02-07', "AAPL");
-  // console.log("Stock Value for APPL on 2023-01-09 is " + stockValue);
-  // return;
-  // below function shows expected format of the saved data (Andrea is working on this)
-  // var transactions = JSON.parse(localStorage.getItem("transactions"));
-// return
-
   // Get the current date and the date 12 months ago
   var now = new Date();
   var oneYearAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
@@ -253,9 +235,7 @@ function getValuation() {
       startDate.setDate(startDate.getDate() + 1);
       continue
     }
-    // Initialize the portfolio value for the current date
-    // portfolio[startDate.toISOString().substring(0, 10)] = 0;
-
+    
     // Loop through the transactions and update the portfolio value for the current date
     for (var i = 0; i < transactions.length; i++) {
       var transaction = transactions[i];
@@ -270,10 +250,11 @@ function getValuation() {
         // Get the current value of the stock for the transaction date
         var stockValue = getPrice(timeSeriesData, startDate, transaction.ticker);
         
-        // if price is null assume exchange was closed
+        // if price is null assume exchange was closed, so dont add a vluation for this date.
         if (stockValue !== null) {
           // Update the portfolio value for the current date
           if (portfolio[startDate.toISOString().substring(0, 10)] === undefined) {
+            // Initialize the portfolio value for the current date
             portfolio[startDate.toISOString().substring(0, 10)] = 0;
           }
           portfolio[startDate.toISOString().substring(0, 10)] += transaction.qty * stockValue;
