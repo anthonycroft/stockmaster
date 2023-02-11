@@ -6,6 +6,12 @@ var priceStock = document.querySelector("#price");
 var date = document.querySelector("#date");
 var submit = document.querySelector("#submit")
 
+$(document).ready(function() {
+          
+  $(function() {
+      $( "#my_date_picker" ).datepicker();
+  });
+});
 
 
 var apiKey = "7p8pLHEtbHWAcDB5wPeMpcoNiHTQw4Am";
