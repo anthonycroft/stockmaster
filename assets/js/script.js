@@ -13,6 +13,16 @@ $(document).ready(function() {
   });
 });
 
+function logging(event){
+  event.preventDefault();
+  
+  console.log([{"Portfolio name": portfolio.value, "Stock Name": stockName.value, "Stock Amount": stockAmount.value, "Price/Stock": priceStock.value }]);
+  
+  
+};
+
+submit.addEventListener("click", logging)
+
 
 var apiKey = "7p8pLHEtbHWAcDB5wPeMpcoNiHTQw4Am";
 
