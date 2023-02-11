@@ -1,4 +1,10 @@
 // import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+var portfolio = document.querySelector("#portfolio");
+var stockName = document.querySelector("#stock");
+var stockAmount = document.querySelector("#stock-amount");
+var priceStock = document.querySelector("#price");
+var date = document.querySelector("#date");
+var submit = document.querySelector("#submit")
 
 
 
