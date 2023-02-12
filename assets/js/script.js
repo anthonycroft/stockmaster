@@ -6,6 +6,95 @@ var priceStock = document.querySelector("#price");
 var date = document.querySelector("#my_date_picker");
 var submit = document.querySelector("#submit")
 
+var specialCharacters = [
+  '@',
+  '%',
+  '+',
+  '\\',
+  '/',
+  "'",
+  '!',
+  '#',
+  '$',
+  '^',
+  '?',
+  ':',
+  ',',
+  ')',
+  '(',
+  '}',
+  '{',
+  ']',
+  '[',
+  '~',
+  '-',
+  '_',
+  '.'
+];
+
+
+var numericCharacters = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+
+var lowerCasedCharacters = [
+  'a',
+  'b',
+  'c',
+  'd',
+  'e',
+  'f',
+  'g',
+  'h',
+  'i',
+  'j',
+  'k',
+  'l',
+  'm',
+  'n',
+  'o',
+  'p',
+  'q',
+  'r',
+  's',
+  't',
+  'u',
+  'v',
+  'w',
+  'x',
+  'y',
+  'z'
+];
+
+
+var upperCasedCharacters = [
+  'A',
+  'B',
+  'C',
+  'D',
+  'E',
+  'F',
+  'G',
+  'H',
+  'I',
+  'J',
+  'K',
+  'L',
+  'M',
+  'N',
+  'O',
+  'P',
+  'Q',
+  'R',
+  'S',
+  'T',
+  'U',
+  'V',
+  'W',
+  'X',
+  'Y',
+  'Z'
+];
+
 
 $(document).ready(function() {
           
@@ -17,6 +106,25 @@ $(document).ready(function() {
 function logging(event){
   event.preventDefault();
   
+
+
+  for (i=0; i<stockAmount.value.length; i++) {
+    if ((lowerCasedCharacters.includes(stockAmount.value[i])) || (upperCasedCharacters.includes(stockAmount.value[i])) || (specialCharacters.includes(stockAmount.value[i]))) {
+      alert("Please enter a number into the stock amount field");
+      stockAmount.value = "";
+
+    }
+  }
+
+  for (i=0; i<priceStock.value.length; i++) {
+    if ((lowerCasedCharacters.includes(priceStock.value[i])) || (upperCasedCharacters.includes(priceStock.value[i])) || (specialCharacters.includes(priceStock.value[i]))) {
+      alert("Please enter a number into the price field");
+      priceStock.value = "";
+  
+    }  
+  }
+
+
   var date = $("#my_date_picker").val();
 
   let dataSet = {
@@ -26,8 +134,9 @@ function logging(event){
     price: priceStock.value,
     date: date
   };
-  console.log(dataSet); 
 
+  console.log(dataSet); 
+  
 };
 
 submit.addEventListener("click", logging)
