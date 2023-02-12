@@ -3,8 +3,9 @@ var portfolio = document.querySelector("#portfolio");
 var stockName = document.querySelector("#stock");
 var stockAmount = document.querySelector("#stock-amount");
 var priceStock = document.querySelector("#price");
-var date = document.querySelector("#date");
+var date = document.querySelector("#my_date_picker");
 var submit = document.querySelector("#submit")
+
 
 $(document).ready(function() {
           
@@ -17,8 +18,6 @@ function logging(event){
   event.preventDefault();
   
   console.log([{"Portfolio name": portfolio.value, "Stock Name": stockName.value, "Stock Amount": stockAmount.value, "Price/Stock": priceStock.value }]);
-  
-  
 };
 
 submit.addEventListener("click", logging)

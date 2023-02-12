@@ -1,3 +1,11 @@
+.card-body {
+  background-color: azure;
+}
+
+.btn {
+  margin: 25px;
+}
+
 .container {
   position: relative;
 }
@@ -26,10 +34,3 @@
   top: 500px;
 }
 
-.card-body {
-  background-color: azure;
-}
-
-.btn {
-  margin: 25px;
-}
