@@ -17,7 +17,17 @@ $(document).ready(function() {
 function logging(event){
   event.preventDefault();
   
-  console.log([{"Portfolio name": portfolio.value, "Stock Name": stockName.value, "Stock Amount": stockAmount.value, "Price/Stock": priceStock.value }]);
+  var date = $("#my_date_picker").val();
+
+  let dataSet = {
+    portfolioName: portfolio.value,
+    stock: stockName.value,
+    amount: stockAmount.value,
+    price: priceStock.value,
+    date: date
+  };
+  console.log(dataSet); 
+
 };
 
 submit.addEventListener("click", logging)
