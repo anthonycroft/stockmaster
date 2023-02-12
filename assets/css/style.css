@@ -1,6 +1,4 @@
-.container {
-  /* position: relative; */
-}
+
 
 /* .image {
   position: absolute;
@@ -30,6 +28,7 @@
   width: 75%;
   display: inline-block !important;
 }
+
 
 .jumbotron {
   padding-top: 0 0 !important;

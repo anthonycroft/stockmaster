@@ -1,7 +1,10 @@
 
 var apiKey = "7p8pLHEtbHWAcDB5wPeMpcoNiHTQw4Am";
 var stocks;
-var timeSeriesData = []; // a JSON object to store the retrieved prices by day/ticker from polygon
+// var timeSeriesData = []; // a JSON object to store the retrieved prices by day/ticker from polygon
+// var portfolio = {};
+
+
 
 function getURL(ticker) {
 
@@ -14,47 +17,80 @@ function getURL(ticker) {
   return queryURL;
 }
 
-function sendRequest (index, ticker) {
-  // Build the query URL for the ajax request to the polygon.io site
-  // const ticker = 'AAPL';
-  var stockURL = getURL(ticker);
-  console.log(stockURL);
+function sendRequest_orig(ticker) {
 
-  fetch(stockURL)
-    .then(response => response.json())
-    .then(data => {
-      const prices = data.results.map(result => ({
-        timestamp: result.t,
-        closingPrice: result.c,
-      }));
+      $.each(stocks, function(index, value) {
+    sendRequest(index, value);
+  })   
 
-      // add the current stock prices to timeSeriesData 
-      // this is in a more convenient format for valuation and other purposes
+  return new Promise((resolve, reject) => {
+    // Build the query URL for the ajax request to the polygon.io site
 
-      data.results.forEach(result => {
-        let dataPoint = {
-          stock: data.ticker,
-          date: new Date(result.t),
-          price: result.c
-        };
+    var stockURL = getURL(ticker);
 
-        timeSeriesData.push(dataPoint);
-      });
+    fetch(stockURL)
+      .then(response => response.json())
+      .then(data => {
+        const prices = data.results.map(result => ({
+          timestamp: result.t,
+          closingPrice: result.c,
+        }));
 
-      // const timestamps = prices.map(price => moment(price.timestamp).format("MM/DD/YYYY"));
-      const timestamps = prices.map(price => price.timestamp);
-      const closingPrices = prices.map(price => price.closingPrice);
+        // add the current stock prices to timeSeriesData 
+        // this is in a more convenient format for valuation and other purposes
 
-      // call function to create the thumbnails
-      createImages(timestamps, closingPrices, index);
-      // produce portfolio valuation(s)
-      getValuation();
-      
-    })
-    .catch(error => console.error(error));
+        data.results.forEach(result => {
+          let dataPoint = {
+            stock: data.ticker,
+            date: new Date(result.t),
+            price: result.c
+          };
+
+          timeSeriesData.push(dataPoint);
+        });
+
+        resolve(timeSeriesData);
+      })
+      .catch(error => reject(error));
+  });
 }
 
-function createImages(timestamps,closingPrices, index ) {
+async function sendRequest (index, ticker, timeSeriesData) {
+  // Build the query URL for the ajax request to the polygon.io site
+
+  var stockURL = getURL(ticker);
+
+  var response = await fetch(stockURL)
+    var data = await response.json()
+
+  const prices = data.results.map(result => ({
+    timestamp: result.t,
+    closingPrice: result.c,
+  }));
+  
+  // add the current stock prices to timeSeriesData 
+  // this is in a more convenient format for valuation and other purposes
+
+  data.results.forEach(result => {
+    let dataPoint = {
+      stock: data.ticker,
+      date: new Date(result.t),
+      price: result.c
+    };
+
+    timeSeriesData.push(dataPoint);
+  });
+
+  // const timestamps = prices.map(price => moment(price.timestamp).format("MM/DD/YYYY"));
+  const timestamps = prices.map(price => price.timestamp);
+  const closingPrices = prices.map(price => price.closingPrice);
+
+  // call function to create the thumbnails
+  createImage(timestamps, closingPrices, index);
+    return timeSeriesData;
+}
+
+function createImage(timestamps,closingPrices, index ) {
 
   // convert unix style dates to standard display format
   const formattedTimestamps = timestamps.map(timestamp => moment(timestamp).format('DD/MM/YYYY'));
@@ -83,8 +119,6 @@ function createImages(timestamps,closingPrices, index ) {
     }
   });
 
-  // console.log("obJSON is: ")  + objJSON
-
   // send the API request to image-charts.com for the thumbnail image
   imgURL = "https://image-charts.com/chart.js/2.8.0?bkg=white&c=" + objJSON;
 
@@ -97,7 +131,52 @@ function createImages(timestamps,closingPrices, index ) {
     title: stocks[index]
  }).appendTo(".thumbnail");
 
-  console.log(imgURL);
+}
+function createImage_2(timestamps,closingPrices) {
+
+  // convert unix style dates to standard display format
+  // const formattedTimestamps = timestamps.map(timestamp => moment(timestamp).format('DD/MM/YYYY'));
+
+  console.log(timestamps);
+  console.log(closingPrices);
+
+  objJSON = JSON.stringify({
+    type:'line',
+    data:{
+      labels: timestamps,
+      datasets:[
+        {
+          backgroundColor:'rgba(255,150,150,0.5)',
+          borderColor:'rgb(255,150,150)',
+          data: closingPrices,
+          label:'Dataset',
+          fill:'origin'
+        }
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      scales: {
+        x: {
+          beginAtZero: false,
+          gridlines: false
+        },
+      }
+    }
+  });
+
+  // send the API request to image-charts.com for the thumbnail image
+  imgURL = "https://image-charts.com/chart.js/2.8.0?bkg=white&c=" + objJSON;
+
+  $("<img>", {
+    src: imgURL,
+    width: "1200",
+    height: "600",
+    id: 1,
+    class: "image",
+    title: 'portfolio'
+ }).appendTo("#myChart");
+
 }
 
 
@@ -105,7 +184,7 @@ function createImages(timestamps,closingPrices, index ) {
 // Released under the ISC license.
 // https://observablehq.com/@d3/area-chart
 function AreaChart(data, {
-  x = ([x]) => x, // given d in data, returns the (temporal) x-value
+  x = ([]) => x, // given d in data, returns the (temporal) x-value
   y = ([, y]) => y, // given d in data, returns the (quantitative) y-value
   defined, // given d in data, returns true if defined (for gaps)
   curve = d3.curveLinear, // method of interpolation between points
@@ -113,8 +192,8 @@ function AreaChart(data, {
   marginRight = 30, // right margin, in pixels
   marginBottom = 30, // bottom margin, in pixels
   marginLeft = 40, // left margin, in pixels
-  width = 640, // outer width, in pixels
-  height = 400, // outer height, in pixels
+  width = 1200, // outer width, in pixels
+  height = 600, // outer height, in pixels
   xType = d3.scaleUtc, // type of x-scale
   xDomain, // [xmin, xmax]
   xRange = [marginLeft, width - marginRight], // [left, right]
@@ -123,12 +202,16 @@ function AreaChart(data, {
   yRange = [height - marginBottom, marginTop], // [bottom, top]
   yFormat, // a format specifier string for the y-axis
   yLabel, // a label for the y-axis
-  color = "currentColor" // fill color of area
+  color = 'rgba(255,150,150,0.5)' // fill color of area
 } = {}) {
   // Compute values.
   const X = d3.map(data, x);
   const Y = d3.map(data, y);
   const I = d3.range(X.length);
+
+  console.log(data.x);
+  console.log(data.y);
+
 
   // Compute which data points are considered defined.
   if (defined === undefined) defined = (d, i) => !isNaN(X[i]) && !isNaN(Y[i]);
@@ -140,7 +223,10 @@ function AreaChart(data, {
 
   // Construct scales and axes.
   const xScale = xType(xDomain, xRange);
-  const yScale = yType(yDomain, yRange);
+  
+  // const yScale = yType(yDomain, yRange);
+  yScale = d3.scaleLinear().domain([0, 200]).range([height, 0]);
+  // yScale = d3.scaleLinear().domain([20000, 300000]).range([height, 0]);
   const xAxis = d3.axisBottom(xScale).ticks(width / 80).tickSizeOuter(0);
   const yAxis = d3.axisLeft(yScale).ticks(height / 40, yFormat);
 
@@ -183,14 +269,34 @@ function AreaChart(data, {
   return svg.node();
 }
 
-function getValuation() {
+  // Function to get the current value of a stock for a given date
+  // function getPrice(timeSeriesData, date, ticker) {
+
+  //   var valuationDate = moment(date).format("YYYY-MM-DD")
+
+  //   let filteredData = timeSeriesData.filter(dataPoint => {
+  //     return moment(dataPoint.date).format("YYYY-MM-DD") === valuationDate &&
+  //            dataPoint.stock === ticker;
+  //   });
+  
+  //   if (filteredData.length > 0) {
+  //     console.log("Price is " + filteredData[0].price )
+  //     return filteredData[0].price;
+  //   } else {
+  //     return null;
+  //   }
+  // }
+
+function getValuation(timeSeriesData) {
   // here we want to create a valuation of the portfolio over the last 12mths for each day
   // NB This function will change when we have stored data we can retrieve, sample data 
   // included below for testing purposes
+var portfolio = {};
+
 
   // issue: for each stock in the portfolio, was it owned at the valuation date ?
   var transactions = [  
-    { "date": "2022-01-01",    "qty": 100,    "ticker": "AAPL" },  
+    { "date": "2022-01-01",    "qty": 100,    "ticker": "AAPL" },
     { "date": "2022-01-02",    "qty": 150,    "ticker": "GOOGL" },
     { "date": "2022-01-02",    "qty": 300,    "ticker": "JNJ" },
     { "date": "2022-01-02",    "qty": 60,     "ticker": "PHR" },
@@ -207,20 +313,19 @@ function getValuation() {
     { "date": "2022-01-02",    "qty": 245,    "ticker": "PHR" },
     { "date": "2022-01-02",    "qty": 653,    "ticker": "CELZ" },
     { "date": "2022-01-02",    "qty": 652,    "ticker": "BEAM" },
-    { "date": "2022-01-02",    "qty": 896,    "ticker": "SPFR" },
     { "date": "2022-01-02",    "qty": 326,    "ticker": "ARKF" },
     { "date": "2022-01-02",    "qty": 562,    "ticker": "GFAIW" },
     { "date": "2022-01-02",    "qty": 254,    "ticker": "PGRWW" },
-    { "date": "2022-01-02",    "qty": 214,    "ticker": "AAPL" }
+    { "date": "2022-01-02",    "qty": 100,    "ticker": "AAPL" },
+    { "date": "2022-01-02",    "qty": 100,    "ticker": "AAPL" }
   ]
 
   // Get the current date and the date 12 months ago
   var now = new Date();
   var oneYearAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-  console.log("OneYearAgo is " + oneYearAgo);
 
   // Create an object to store the portfolio value for each date
-  var portfolio = {};
+  // var portfolio = {};
 
   // Set the start date to the date 12 months ago
   var startDate = oneYearAgo;
@@ -244,12 +349,8 @@ function getValuation() {
       // Only consider transactions that were made on or before the current date
       if (transactionDate <= startDate) {
 
-        console.log("transactionDate is " + transactionDate);
-        console.log("startDate is " + startDate);
-        // return;
         // Get the current value of the stock for the transaction date
-        var stockValue = getPrice(timeSeriesData, startDate, transaction.ticker);
-        
+        var stockValue = getPrice(startDate, transaction.ticker);
         // if price is null assume exchange was closed, so dont add a vluation for this date.
         if (stockValue !== null) {
           // Update the portfolio value for the current date
@@ -258,7 +359,6 @@ function getValuation() {
             portfolio[startDate.toISOString().substring(0, 10)] = 0;
           }
           portfolio[startDate.toISOString().substring(0, 10)] += transaction.qty * stockValue;
-          console.log("Date: " + startDate + "Portfolio Value: " + portfolio[startDate.toISOString().substring(0, 10)])
         }
       }
     }
@@ -267,25 +367,15 @@ function getValuation() {
     startDate.setDate(startDate.getDate() + 1);
   }
 
-  // Log the portfolio value for each date
-  for (var date in portfolio) {
-    console.log(date + ": $" + portfolio[date]);
-  }
-}
+  function getPrice(date, ticker) {
 
-function isWeekend(date) {
-  let day = date.getDay();
-  return day === 0 || day === 6;
-}
+    var valuationDate = moment(date).format("YYYY-MM-DD")
 
-  // Function to get the current value of a stock for a given date
-  function getPrice(timeSeriesData, date, stock) {
-    date = moment(date).format("YYYY-MM-DD")
     let filteredData = timeSeriesData.filter(dataPoint => {
-      return moment(dataPoint.date).format("YYYY-MM-DD") === date &&
-             dataPoint.stock === stock;
+      return moment(dataPoint.date).format("YYYY-MM-DD") === valuationDate &&
+             dataPoint.stock === ticker;
     });
-  
+
     if (filteredData.length > 0) {
       return filteredData[0].price;
     } else {
@@ -293,18 +383,227 @@ function isWeekend(date) {
     }
   }
 
-function init() {
+  // Log the portfolio value for each date
+  for (var date in portfolio) {
+    console.log(date + ": $" + portfolio[date]);
+  }
+
+  return portfolio;
+}
+
+function isWeekend(date) {
+  let day = date.getDay();
+  return day === 0 || day === 6;
+}
+
+
+
+async function createEquityCurve (labels, values) {
+
+  const formattedLabels = labels.map(label => moment(label).format('YYYY-MM-DD'));
+  console.log(formattedLabels);
+
+  var ctx = document.getElementById("myChart").getContext("2d");
+console.log("We got here");
+  // try {
+    if (series) {
+      series.destroy();
+    }
+
+    var series = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: formattedLabels,
+            datasets: [
+              {
+                data: values,
+                borderColor: "#3e95cd",
+                fill: false
+              }
+            ]
+          },
+          options: {
+            scales: {
+              xAxes: [
+                {
+                  type: "time",
+                  time: {
+                    parser: "YYYY-MM-DD",
+                    unit: "day"
+                  },
+                  // grid: {
+                  //   drawOnChartArea: false
+                  // }
+                }
+              ],
+              yAxes: [
+                {
+                  ticks: {
+                    beginAtZero: false,
+                    display: false
+                  },
+                  // grid: {
+                  //   drawOnChartArea: false
+                  // }
+                }
+              ]
+            },
+            title: {
+              display: false
+              // text: "Equity Curve"
+            },
+            legend: {
+              display: false
+          }
+          }
+          
+        });
+  }
+
+
+
+
+
+
+async function init() {
 
   // the below are used for testing as we dont have the user inputs yet
 
   stocks = ['MSFT','AAPL','AMZN','GOOGL','JNJ','JPM','PG','V', 'GOLD', 'META','SGHLW', 'SAMAW', 'GFAIW', 'CELZ', 'PGRWW',
-  "DOCU","DDD", "NIU","ARKF","NVDA","SKLZ","PCAR","MASS","PSTI","SPFR","TREE","PHR","IRDM","BEAM","ARKW","ARKK","ARKG",
+  "DOCU","DDD", "NIU","ARKF","NVDA","SKLZ","PCAR","MASS","TREE","PHR","IRDM","BEAM","ARKW","ARKK","ARKG",
   "PSTG","SQ","IONS","SYRS"]
 
-  $.each(stocks, function(index, value) {
-    sendRequest(index, value);
-  });
+  // Promise.all(
+  //   stocks.map((value, index) => {
+  //     return sendRequest(index, value);
+  //   })
+  // )
+  // .then(getValuation)
+  // .then((portfolio) => {
+  //   let data = [];
+  //   // modify the data array as required
+    // data = Object.entries(portfolio).map(([x, y]) => ({x, y}));;
+  //   AreaChart(data)awa;
+  // });
+  var answer;
+  var data;
+  var timeSeriesData = [];
+  var portfolio = {};
+
+  // createEquityCurve()
+
+  $.each(stocks, async function(index, value) {
+
+    answer  = await sendRequest(index, value, timeSeriesData);
+
+    if (index === stocks.length - 1) {
+      portfolio = getValuation(timeSeriesData);
+      const labels = Object.keys(portfolio);
+      const values = Object.values(portfolio);
+  
+
+      // Load the Visualization API and the corechart package.
+      // google.charts.load('current',{packages:['corechart']});
+      // google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+
+        // console.log(labels)
+        // console.log(values)
+    
+        // var data = google.visualization.arrayToDataTable([
+        //   ['Year', 'Sales', 'Expenses'],
+        //   ['2013',  1000,      400],
+        //   ['2014',  1170,      460],
+        //   ['2015',  660,       1120],
+        //   ['2016',  1030,      540]
+        // ]);
+    
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'label');
+        data.addColumn('number', 'value');
+
+        for (var i = 0; i < labels.length; i++) {
+          // data.addRows([
+          //   ['Work', 11],
+          //   ['Eat', 2],
+          //   ['Commute', 2],
+          //   ['Watch TV', 2],
+          //   ['Sleep', {v:7, f:'7.000'}]
+          // ]);
+          console.log(labels[i])
+          console.log(values[i])
+          data.addRow([labels[i], values[i]
+          ]);
+        }
+
+        // var data = new google.visualization.DataTable();
+        // data.addColumn('string', 'Task');
+        // data.addColumn('number', 'Hours per Day');
+        // data.addRows([
+        //   ['Work', 11],
+        //   ['Eat', 2],
+        //   ['Commute', 2],
+        //   ['Watch TV', 2],
+        //   ['Sleep', {v:7, f:'7.000'}]
+        // ]);
+    
+        // chartArea.backgroundColor = 'red';
+        // var options = {
+        //   // title: 'Equity Curve',
+        //   hAxis: {title: 'Date',  titleTextStyle: {color: '#333'}},
+        //   vAxis: {},
+        //   legend: 'none',
+          
+        // };
+    
+        // var chart = new google.visualization.AreaChart(document.getElementById('myChart'));
+        // chart.draw(data, options);
+      }
+
+            // Set a callback to run when the Google Visualization API is loaded.
+
+
+      createEquityCurve(labels, values);
+      // data = labels.map((label, index) => ({x: new Date(label), y: values[index]}));
+
+      // const chart = AreaChart(data, {
+      //   x: d => d.x,
+      //   y: d => d.y,
+      //   yLabel: "Portfolio Value"
+      // });
+
+      // const node = document.getElementById('myChart');
+      // // const node = document.getElementById("myList2").lastElementChild;
+      // node.appendChild(chart);
+
+      // createImage_2(labels, values);
+    }
+
+    
+
+  })     // produce portfolio valuation(s)
+  
+  // getValuation(timeSeriesData);
+
+  // data = labels.map((label, index) => ({x: new Date(label), y: values[index]}));
+
+  // const chart = AreaChart(data, {
+  //   x: d => d.x,
+  //   y: d => d.y,
+  //   yLabel: "Portfolio Value"
+  // });
+  
+  // document.body.appendChild(chart);
+
+
 
 }
 
+
+
 init();
+  // $.each(stocks, function(index, value) {
+  //   sendRequest(index, value);
+  // }).then(      // produce portfolio valuation(s)
+  // getValuation())
