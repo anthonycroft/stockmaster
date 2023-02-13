@@ -37,3 +37,8 @@
 .gainers {
   display: inline-block !important;
 }
+
+#viz {
+  width: 100%;
+  /* text-align: center; */
+}

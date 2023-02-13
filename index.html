@@ -5,8 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <!-- <link rel="stylesheet" href="assets/CSS/reset.css" /> -->
-  <link rel="stylesheet" type="text/html" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/reset.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
   <title>My Portfolio</title>
@@ -95,32 +95,31 @@
           <h4 class="mb-3">30-day Performance</h4>
         </div>
         <div class="col-lg-8 mt-4 ml-3">
-          <h4 class="mb-3">Equity Curve</h4>
-          <div style="width: 100%; height: 500px;"></div>>
-            <canvas class="myChart" id="myChart"></canvas>
+          <h4 class="mb-0">Equity Curve</h4>
+          
+          <div id="viz">
+            
+          </div id="heatmap">
+          <!-- create the boxes of the heatmap here  -->
+
           </div>
         </div>
-        <!-- </div> -->
+
       </div>
 
     </div>
   </section>
     
  
-  <!-- google Charts -->
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-
-  
   <!-- Moment.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
   <!-- jQuery -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <!-- chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
   <!-- d3.js -->
   <script src="https://d3js.org/d3.v6.min.js"></script>
-  <!-- <script src='https://cdn.plot.ly/plotly-2.18.0.min.js'></script> -->
+
   <script src="assets/js/script.js"></script>
+  <script src="assets/js/heatmap.js"></script>
 
    <script async charset="utf-8" src="https://widgets.fxempire.com/widget.js" ></script>
 
