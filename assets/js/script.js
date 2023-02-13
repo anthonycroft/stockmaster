@@ -305,9 +305,9 @@ function isWeekend(date) {
 }
 
 async function init() {
-  //////////////////////////////////////////////////////
-  // main program - key functions are called from here /
-  //////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////
+  // main program - all key functions are called from here /
+  //////////////////////////////////////////////////////////
 
   // the below are used for testing as we dont have the user inputs yet
   stocks = ['MSFT','AAPL','AMZN','GOOGL','JNJ','JPM','PG','V', 'GOLD', 'META','SGHLW', 'SAMAW', 'GFAIW', 'CELZ', 'PGRWW',
@@ -333,5 +333,70 @@ async function init() {
     createHeatMap(timeSeriesData);
 
 }
+
+  $(document).ready(function() {
+    $("#submit").click(function() {
+      // check that all inputs are complete
+      // did user enter portfolio name ?
+
+      let errorsFound = false;
+
+      if ($.trim($("#portfolio").val()) === "") {
+       alert("You must enter a value in the portfolio field!")
+       errorsFound = true;
+      } else if ($.trim($("#stock").val()) === "") {
+        alert("You must enter a value in the stock field!")
+        errorsFound = true;
+      } else if ($("#stock-amount").val() === 0) {
+        alert("You must enter a value in the stock amount field!")
+        errorsFound = true;
+      } else if ($("#price").val() === 0) {
+        alert("You must enter a value in the price field!")
+        errorsFound = true;
+      }
+
+      if (errorsFound) {
+        return;
+      }
+
+      const portfolioName = $.trim($("#portfolio").val());
+      const stock = $.trim($("#stock").val());
+      const quantity = $.trim($("#stock-amount").val());
+      const price = $("#price").val();
+      const date = $("#date_picker").val();
+
+      
+      console.log(portfolioName);
+      console.log(stock);
+      console.log(quantity);
+      console.log(price);
+      console.log(date);
+
+       // If all  checks complete we need to store the data
+       // See if portfolio exists in local storage
+
+      // let transactions = JSON.parse($.jStorage.get(portfolioName));
+      let transactions =JSON.parse(localStorage.getItem(portfolioName));
+
+      if (!transactions) {
+        transactions = [];
+      }
+
+      // call function to add new transaction to 
+      addTransaction(stock, quantity, date, price)
+
+      function addTransaction(stockName, qty, date, cost) {
+        transactions.push({
+          stock: stockName,
+          quantity: qty,
+          date: date,
+          price: cost
+        });
+      }
+        
+      localStorage.setItem(portfolioName, JSON.stringify(transactions));
+  })
+});
+
 
 init();
