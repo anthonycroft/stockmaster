@@ -304,15 +304,35 @@ function isWeekend(date) {
   return day === 0 || day === 6;
 }
 
+function getPortfolioStocks() {
+  // get the last portfolio loaded by the user and return unique stocks
+
+  // code here to find last portfolio loaded
+  lastViewedPortfolio = '401k'
+  // get the constituent stocks
+
+  const portfolio = JSON.parse(localStorage.getItem(lastViewedPortfolio));1111
+
+  const stockList = portfolio.map(stock => `${stock.stock}`);
+
+  const uniqueStockList = [...new Set(stockList)];
+
+  return uniqueStockList;
+}
+
 async function init() {
   //////////////////////////////////////////////////////////
   // main program - all key functions are called from here /
   //////////////////////////////////////////////////////////
 
   // the below are used for testing as we dont have the user inputs yet
-  stocks = ['MSFT','AAPL','AMZN','GOOGL','JNJ','JPM','PG','V', 'GOLD', 'META','SGHLW', 'SAMAW', 'GFAIW', 'CELZ', 'PGRWW',
-  "DOCU","DDD", "NIU","ARKF","NVDA","SKLZ","PCAR","MASS","TREE","PHR","IRDM","BEAM","ARKW","ARKK","ARKG",
-  "PSTG","SQ","IONS","SYRS"]
+  // stocks = ['MSFT','AAPL','AMZN','GOOGL','JNJ','JPM','PG','V', 'GOLD', 'META','SGHLW', 'SAMAW', 'GFAIW', 'CELZ', 'PGRWW',
+  // "DOCU","DDD", "NIU","ARKF","NVDA","SKLZ","PCAR","MASS","TREE","PHR","IRDM","BEAM","ARKW","ARKK","ARKG",
+  // "PSTG","SQ","IONS","SYRS"]
+
+  // Get the last portfolio loaded by the user - and load that 
+
+  stocks = getPortfolioStocks();
 
   var answer;
   var timeSeriesData = [];
@@ -335,7 +355,7 @@ async function init() {
 }
 
   $(document).ready(function() {
-    $("#submit").click(function() {
+    $("#submit-transaction").click(function() {
       // check that all inputs are complete
       // did user enter portfolio name ?
 
@@ -365,19 +385,12 @@ async function init() {
       const price = $("#price").val();
       const date = $("#date_picker").val();
 
-      
-      console.log(portfolioName);
-      console.log(stock);
-      console.log(quantity);
-      console.log(price);
-      console.log(date);
-
        // If all  checks complete we need to store the data
        // See if portfolio exists in local storage
 
       // let transactions = JSON.parse($.jStorage.get(portfolioName));
       let transactions =JSON.parse(localStorage.getItem(portfolioName));
-
+      
       if (!transactions) {
         transactions = [];
       }
@@ -385,16 +398,31 @@ async function init() {
       // call function to add new transaction to 
       addTransaction(stock, quantity, date, price)
 
+      clearInputFields();
+
       function addTransaction(stockName, qty, date, cost) {
+
         transactions.push({
           stock: stockName,
           quantity: qty,
           date: date,
           price: cost
         });
+
+        localStorage.setItem(portfolioName, JSON.stringify(transactions)); 
+      }
+
+      function clearInputFields () {
+        // clears the portfolio input fields
+        
+        $("#portfolio").val('');
+        $("#stock").val('');
+        $("#stock-amount").val('');
+        $("#price").val('');
+        $("#date_picker").val('');
+
       }
         
-      localStorage.setItem(portfolioName, JSON.stringify(transactions));
   })
 });
 

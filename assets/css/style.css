@@ -73,9 +73,14 @@ input[type="number"]  {
 }
 
 .display-4, .lead {
-  text-align: center;;
+  text-align: center;
 }
 
 .input-heading {
   font-weight: bold;
 }
+
+.portfolio-retrieval {
+  justify-self: end;
+}
+

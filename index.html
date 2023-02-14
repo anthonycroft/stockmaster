@@ -59,7 +59,7 @@
   </header>
 
     <div class="page-wrapper container-fluid">
-      <div class="row justify-content-around">
+      <div class="row justify-content-center">
         <div class="column col-lg-2 tradingview-widget-container gainers">
           <h4 class="mb-4">Market Overview</h4>
           <div class="tradingview-widget-container__widget"></div>
@@ -90,13 +90,25 @@
           </script>
         </div>
 
-        <div class="column thumbnail col-lg-8 mr-0">
+        <div class="thumbnail col-lg-6 mr-0">
           <!-- thumbnail charts dynamically appended here -->
-          <h4 class="mb-3">30-day Performance</h4>
+          <h4 class="mb-3" id="30day">30-day Performance</h4>
         </div>
 
-        <div class="column col-lg-2">
+        <div class="col-lg-2">
           <h4 class="mb-4">Portfolio Management</h4>
+          <div class="card" style="width: 20rem;">
+            <div class="card-body ml-4">
+                <div class="row input-heading" >
+                  Get Portfolio<input class="form-control form-control-lg mt-2 mb-2" type="text" placeholder="Enter portfolio name" id="get-portfolio">
+                <small class="mb-2">NB If portfolio name does not exist it will be created.</small>
+                </div>
+                <div class="row">
+                    <input class="btn btn-primary btn-lg btn-block mt-2" type="submit" value="Submit" id="submit-portfolio">  
+                </div>
+            </div>
+          </div>
+          <h5 class="mt-3 mb-3">Enter transactions</h5>
           <div class="card" style="width: 20rem;">
             <div class="card-body ml-4">
                 <div class="row input-heading" >
@@ -114,7 +126,7 @@
                   Cost Price
                   <div class="input-group input-group-lg" >
                     <div class="input-group-prepend">
-                      <span class="input-group-text mt-2 mb-2">£</span>
+                      <span class="input-group-text mt-2 mb-2">$</span>
                     </div>
                     <input type="number" class="form-control mt-2" aria-label="Price" placeholder="Price" id="price">
                   </div>
@@ -123,21 +135,24 @@
                   Date<input type="text" class="form-control form-control-lg mt-2 mb-2" id="date_picker" placeholder="Choose a date">
                 </div>
                 <div class="row">
-                    <input class="btn btn-primary btn-lg btn-block mt-2" type="submit" value="Submit" id="submit">  
+                    <input class="btn btn-primary btn-lg btn-block mt-2" type="submit" value="Submit" id="submit-transaction">  
                 </div>
             </div>
           </div>
         </div>
-      </div>  
 
-      <div class="row">
-        <div class="mt-4">
+      </div>
+
+      <div class="row justify-content-around">
+        <div class="col-lg-6 mt-4">
           <h4 class="mb-0">Equity Curve</h4>
           <div id="viz">
             <!-- Main Equity chart will go here  -->
           </div>
         </div>
       </div>
+
+  </div>
 
       <div class="row">
         </div id="heatmap">
