@@ -1,6 +1,4 @@
-.container {
-  /* position: relative; */
-}
+
 
 /* .image {
   position: absolute;
@@ -31,10 +29,16 @@
   display: inline-block !important;
 }
 
+
 .jumbotron {
   padding-top: 0 0 !important;
 }
 
 .gainers {
   display: inline-block !important;
+}
+
+#viz {
+  width: 100%;
+  /* text-align: center; */
 }
