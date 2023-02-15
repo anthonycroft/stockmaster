@@ -63,12 +63,16 @@ function callHeatmap() {
   const rows = heatmap.querySelectorAll('tr');
   const cells = heatmap.querySelectorAll('td');
 
-  const cellWidth = heatmap.offsetWidth / width;
-  const cellHeight = heatmap.offsetHeight / height;
+  /*const cellWidth = heatmap.offsetWidth / width;
+  const cellHeight = heatmap.offsetHeight / height;*/
+  const cellWidth = heatmap.offsetWidth / (width * 2); // Divide width by 2
+const cellHeight = heatmap.offsetHeight / (height * 2); // Divide height by 2
+
 
  cells.forEach((cell, index) => {
     const stockSymbol = stocks[index];
     cell.setAttribute('title', stockSymbol);
+    cell.textContent = stockSymbol;
 
     cell.addEventListener('click', () => {
       const yahooFinanceUrl = `https://finance.yahoo.com/quote/${stockSymbol}`;
