@@ -1,77 +1,57 @@
-var apiKey = "7p8pLHEtbHWAcDB5wPeMpcoNiHTQw4Am";
+const startDate = '2023-01-01';
+const endDate = '2023-01-31';
 
-const stocks = ["MSFT","AAPL","AMZN","GOOGL","JNJ","JPM","PG","V","GOLD","META","SGHLW","SAMAW","GFAIW","CELZ","PGRWW",
-  "DOCU","DDD", "NIU","ARKF","NVDA","SKLZ","PCAR","MASS","PSTI","SPFR","TREE","PHR","IRDM","BEAM","ARKW","ARKK","ARKG",
-  "PSTG","SQ","IONS","SYRS"];
-const startDate = "2023-01-01";
-const endDate = "2023-01-31";
+const width = 30;
+const height = Math.ceil(stocks.length / width);
 
-async function getData(stock) {
-    const url = `https://api.polygon.io/v2/aggs/ticker/${stock}/range/1/day/${startDate}/${endDate}?apiKey=${apiKey}`;
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      const filteredData = data.map(d => ({ c: d.c, t: d.t }));
-      return filteredData;
-    } catch (error) {
-      console.error(error);
+const colorScale = {
+  "-1.0": "#FFD3D3", 
+  "-0.05": "#FF8D8D", 
+  "0.0": "#FFFFFF",  
+  "0.05": "#B4F7B4", 
+  "1.0": "#4EC64E"   
+};
+
+const promises = [];
+stocks.forEach(symbol => {
+  const url = `https://api.polygon.io/v2/aggs/ticker/${symbol}/range/1/day/${startDate}/${endDate}?apiKey=7p8pLHEtbHWAcDB5wPeMpcoNiHTQw4Am`;
+  promises.push($.get(url));
+});
+
+Promise.all(promises)
+  .then(responses => {
+    const stockData = responses.map(response => response.results);
+    const prices = stockData.map(data => data.map(d => d.c));
+    const maxPrice = Math.max(...prices.flat());
+    const minPrice = Math.min(...prices.flat());
+
+    const heatmapTable = document.querySelector('.heat-map');
+    for (let i = 0; i < height; i++) {
+      const row = heatmapTable.insertRow();
+      for (let j = 0; j < width; j++) {
+        const index = i * width + j;
+        if (index >= stocks.length) {
+          break;
+        }
+        const cell = row.insertCell();
+        const priceData = stockData[index].map(d => d.c);
+        const firstPrice = priceData[0];
+        const lastPrice = priceData[priceData.length - 1];
+        const percentChange = (lastPrice - firstPrice) / firstPrice;
+        let colorIndex;
+        if (percentChange <= -0.05) {
+          colorIndex = "-0.05";
+        } else if (percentChange <= -0.01) {
+          colorIndex = "-1.0";
+        } else if (percentChange <= 0.01) {
+          colorIndex = "0.0";
+        } else if (percentChange <= 0.05) {
+          colorIndex = "0.05";
+        } else {
+          colorIndex = "1.0";
+        }
+        cell.style.backgroundColor = colorScale[colorIndex];
+      }
     }
-  }
-
-  async function main() {
-    const data = [];
-    for (const stock of stocks) {
-      const stockData = await getData(stock);
-      data.push(stockData);
-    }
-    console.log(data);
-  }
-  
-  main();
-
-  const width = 800;
-  const height = 500;
-  const margin = { top: 20, right: 20, bottom: 30, left: 40 };
-  
-  const svg = d3.select("#heatmap")
-    .append("svg")
-    .attr("width", width)
-    .attr("height", height);
-  
-  const x = d3.scaleBand()
-    .rangeRound([margin.left, width - margin.right])
-    .padding(0.1);
-  
-  const y = d3.scaleLinear()
-    .rangeRound([height - margin.bottom, margin.top]);
-  
-  const color = d3.scaleLinear()
-    .range(["white", "red"])
-    .interpolate(d3.interpolateHcl);
-  
-  async function main() {
-    const data = [];
-    for (const stock of stocks) {
-      const stockData = await getData(stock);
-      data.push(stockData);
-    }
-  
-    x.domain(stocks);
-    y.domain([
-      d3.min(data, d => d3.min(d, dd => dd.c)),
-      d3.max(data, d => d3.max(d, dd => dd.c))
-    ]);
-  
-    svg.selectAll(".bar")
-      .data(data)
-      .join("rect")
-      .attr("class", "bar")
-      .attr("x", (d, i) => x(stocks[i]))
-      .attr("y", d => y(d.c))
-      .attr("width", x.bandwidth())
-      .attr("height", d => height - margin.bottom - y(d.c))
-      .style("fill", d => color(d.c));
-  }
-  
-  main();
-  
+  })
+  .catch(error => console.error(error));
