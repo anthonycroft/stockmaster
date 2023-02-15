@@ -65,15 +65,20 @@ function callHeatmap() {
 
   const cellWidth = heatmap.offsetWidth / width;
   const cellHeight = heatmap.offsetHeight / height;
-  /*const cellWidth = heatmap.offsetWidth / (width * 2); // Divide width by 2
-  const cellHeight = heatmap.offsetHeight / (height * 2); // Divide height by 2*/
-
 
  cells.forEach((cell, index) => {
     const stockSymbol = stocks[index];
+   
+    const stockSymbolElement = document.createElement('div');
+    stockSymbolElement.textContent = stockSymbol;
+    stockSymbolElement.style.fontSize = '10px';
+    stockSymbolElement.style.margin = 'auto';
+    stockSymbolElement.style.textAlign = 'center';
+    if (cell.firstChild) {
+      cell.removeChild(cell.firstChild);
+    }
+    cell.appendChild(stockSymbolElement);
     cell.setAttribute('title', stockSymbol);
-    cell.textContent = stockSymbol;
-
     cell.addEventListener('click', () => {
       const yahooFinanceUrl = `https://finance.yahoo.com/quote/${stockSymbol}`;
       window.open(yahooFinanceUrl, '_blank');
@@ -89,6 +94,9 @@ function callHeatmap() {
     });
     }
 
-    
+    window.removeEventListener('load', callHeatmap);
+    window.removeEventListener('resize', callHeatmap);
+
+
     window.addEventListener('load', callHeatmap);
     window.addEventListener('resize', callHeatmap);
