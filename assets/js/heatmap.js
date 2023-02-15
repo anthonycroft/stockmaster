@@ -63,10 +63,10 @@ function callHeatmap() {
   const rows = heatmap.querySelectorAll('tr');
   const cells = heatmap.querySelectorAll('td');
 
-  /*const cellWidth = heatmap.offsetWidth / width;
-  const cellHeight = heatmap.offsetHeight / height;*/
-  const cellWidth = heatmap.offsetWidth / (width * 2); // Divide width by 2
-const cellHeight = heatmap.offsetHeight / (height * 2); // Divide height by 2
+  const cellWidth = heatmap.offsetWidth / width;
+  const cellHeight = heatmap.offsetHeight / height;
+  /*const cellWidth = heatmap.offsetWidth / (width * 2); // Divide width by 2
+  const cellHeight = heatmap.offsetHeight / (height * 2); // Divide height by 2*/
 
 
  cells.forEach((cell, index) => {
@@ -79,7 +79,7 @@ const cellHeight = heatmap.offsetHeight / (height * 2); // Divide height by 2
       window.open(yahooFinanceUrl, '_blank');
     });
     
-    cell.style.width = `${cellWidth}px`;
+    cell.style.width = `${cellWidth * 2}px`;
     cell.style.height = `${cellHeight}px`;
     
     });
