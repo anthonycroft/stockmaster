@@ -1,7 +1,7 @@
 // const { right } = require("inquirer/lib/utils/readline");
 
 var apiKey = "7p8pLHEtbHWAcDB5wPeMpcoNiHTQw4Am";
-var stocks;
+const placeholderPortfolio = "DJ30"
 
 function getURL(ticker) {
 
@@ -14,45 +14,7 @@ function getURL(ticker) {
   return queryURL;
 }
 
-function sendRequest_orig(ticker) {
-
-    $.each(stocks, function(index, value) {
-    sendRequest(index, value);
-  })   
-
-  return new Promise((resolve, reject) => {
-    // Build the query URL for the ajax request to the polygon.io site
-
-    var stockURL = getURL(ticker);
-
-    fetch(stockURL)
-      .then(response => response.json())
-      .then(data => {
-        const prices = data.results.map(result => ({
-          timestamp: result.t,
-          closingPrice: result.c,
-        }));
-
-        // add the current stock prices to timeSeriesData 
-        // this is in a more convenient format for valuation and other purposes
-
-        data.results.forEach(result => {
-          let dataPoint = {
-            stock: data.ticker,
-            date: new Date(result.t),
-            price: result.c
-          };
-
-          timeSeriesData.push(dataPoint);
-        });
-
-        resolve(timeSeriesData);
-      })
-      .catch(error => reject(error));
-  });
-}
-
-async function sendRequest (index, ticker, timeSeriesData) {
+async function sendRequest (ticker, timeSeriesData) {
   // Build the query URL for the ajax request to the polygon.io site
 
   var stockURL = getURL(ticker);
@@ -60,10 +22,18 @@ async function sendRequest (index, ticker, timeSeriesData) {
   var response = await fetch(stockURL)
     var data = await response.json()
 
+    // console.log("data in sendRequest is :" + data);
+
   const prices = data.results.map(result => ({
     timestamp: result.t,
-    closingPrice: result.c,
+    closingPrice: result.c
   }));
+
+  // const prices = data.map(result => ({
+  //   timestamp: result.results.t,
+  //   closingPrice: result.results.c,
+  //   ticker: result.ticker
+  // }));
   
   // add the current stock prices to timeSeriesData 
   // this is in a more convenient format for valuation and other purposes
@@ -83,14 +53,16 @@ async function sendRequest (index, ticker, timeSeriesData) {
   const closingPrices = prices.map(price => price.closingPrice);
 
   // call function to create the thumbnails
-  createImage(timestamps, closingPrices, index);
-    return timeSeriesData;
+  createImage(timestamps, closingPrices, ticker);
+
+  return timeSeriesData;
 }
 
-function createImage(timestamps,closingPrices, index ) {
+function createImage(timestamps,closingPrices, ticker) {
 
   // convert unix style dates to standard display format
   const formattedTimestamps = timestamps.map(timestamp => moment(timestamp).format('DD/MM/YYYY'));
+
 
   objJSON = JSON.stringify({
     type:'line',
@@ -123,9 +95,10 @@ function createImage(timestamps,closingPrices, index ) {
     src: imgURL,
     width: "200",
     height: "100",
-    id: "chtThumb" + index + 1,
+    id: "chtThumb_" + ticker,
     class: "image",
-    title: stocks[index]
+    // title: stocks[index]
+    title: ticker
  }).appendTo(".thumbnail");
 
 }
@@ -206,8 +179,6 @@ function getValuation(timeSeriesData, portfolioName) {
   // date.
 
   let transactions = getPortfolioTransactions(portfolioName)
-
-  console.log(transactions)
 
   if (transactions === 'none' ) {
     return 
@@ -305,6 +276,8 @@ function getPortfolioStocks(portfolioName) {
     localStorage.setItem(portfolioName, JSON.stringify(portfolio));
   }
 
+  // console.log("Unique Stock list is " + uniqueStockList);
+
   return uniqueStockList;
 }
 
@@ -334,7 +307,7 @@ async function init() {
 
   // NB we are passing and empty string as the portfolio name as no portfolio loaded - we are simply displaying
   // DJ30 stocks
-  displayData(stocks, '');
+  displayData(stocks, placeholderPortfolio);
 
 }
 
@@ -347,22 +320,35 @@ async function displayData(stocks, portfolioName) {
   // Remove the current thumbnail images as they may not belong to the new portfolio requested
   $("#thumbnail img").remove();
 
-  // Remove the current Equity Curve, this needs to be redrawn for currently requested portfolio
+  // Remove the current Equity Curve, this needs to be redrawn for the current portfolio
   $("#viz svg").remove();
 
   await Promise.all(stocks.map(async function(value, index) {
-    answer = await sendRequest(index, value, timeSeriesData);
+    answer = await sendRequest(value, timeSeriesData);
     }));
     
-    portfolio = await getValuation(timeSeriesData, portfolioName); // this is the investors portfolio they wish to show, this call will retrieve the daily closing prices so we can build an equity curve
-    const labels = Object.keys(portfolio);
-    const values = Object.values(portfolio);
+    // dont call these functions if the page has just loaded as the investor has not yet selected a portfolio to analyse/value
+    if (portfolioName !== placeholderPortfolio) {
+      // console.log("We ended up valuing the stocks..")
+      portfolio = await getValuation(timeSeriesData, portfolioName); // this is the investors portfolio they wish to show, this call will retrieve the daily closing prices so we can build an equity curve
+      const labels = Object.keys(portfolio);
+      const values = Object.values(portfolio);
 
-    // function call to draw equity curve
-    drawEquityCurve(portfolio);
+      // function call to draw equity curve
+      drawEquityCurve(portfolio);
 
-    // function call to create heat map
-    createHeatMap(timeSeriesData);
+      // function call to create heat map
+      createHeatMap(timeSeriesData);
+  }
+
+    addTitle(portfolioName);
+
+}
+
+function addTitle(portfolioName) {
+ // Adds a title to the page representing the currently displayed portfolio
+//  console.log("portfolio name  is " + portfolioName);
+ $("span.portfolio_header").text(portfolioName);
 
 }
 
@@ -417,6 +403,12 @@ $(document).ready(function() {
 
     clearInputFields();
 
+    showAlert("Transaction added.","This stock transaction has been added to the portfolio: " + portfolioName, 'success', false)
+
+    // refresh the display to update charts / valuation
+    const stocks = getPortfolioStocks(portfolioName);
+    displayData(stocks, portfolioName);
+
     function addTransaction(stockName, qty, date, cost) {
 
       transactions.push({
@@ -437,8 +429,7 @@ $(document).ready(function() {
       $("#stock-amount").val('');
       $("#price").val('');
       $("#date_picker").val('');
-
-    }  
+    }
   })
 
   $("#submit-portfolio").click(function() {
@@ -474,6 +465,7 @@ $(document).ready(function() {
       } else {
         // we found portfolio name and it has stocks in it
         displayData(stocks, portfolioName);
+        // console.log("Stocks are in $('#submit-portfolio').click(function() {" + stocks)
       }
 
     // clear the portfolio name field

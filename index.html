@@ -93,7 +93,7 @@
 
         <div class="thumbnail col-lg-6 mr-0" id="thumbnail">
           <!-- thumbnail charts dynamically appended here -->
-          <h4 class="mb-3" id="30day">30-day Performance<span class="portfolio_header ml-5">401k</span></h4>
+          <h4 class="mb-3" id="30day">30-day Performance<span class="portfolio_header ml-5"></span></h4>
         </div>
 
         <div class="col-lg-2">
@@ -117,20 +117,20 @@
                 <small class="mb-2">NB If portfolio name does not exist it will be created.</small>
                 </div>
                 <div class="row input-heading">
-                  Stock<input class="form-control form-control-lg mt-2 mb-2" type="text" placeholder="Enter stock name" id="stock">
-                  <small class="mb-2">NB Enter negative amounts for sales.</small>
+                  Stock Ticker (e.g. AAPL)<input class="form-control form-control-lg mt-2 mb-2" type="text" placeholder="Enter stock name" id="stock">
                 </div>
                 <div class="row input-heading" >
-                  Stock amount<input class="form-control form-control-lg mt-2 mb-2" type="number" placeholder="Enter stock amount" id="stock-amount">
+                  Stock Amount<input class="form-control form-control-lg mt-2 mb-2" type="number" placeholder="Enter stock amount" id="stock-amount">
                 <label class="form-label" for="stock-amount"></label>
                 </div>
                 <div class="row input-heading">    
-                  Cost Price
+                  Bought/Sold Price
                   <div class="input-group input-group-lg" >
                     <div class="input-group-prepend">
                       <span class="input-group-text mt-2 mb-2">$</span>
                     </div>
                     <input type="number" class="form-control mt-2" aria-label="Price" placeholder="Price" id="price">
+                    <small class="mb-2">NB Enter negative amounts for sales.</small>
                   </div>
                 </div>
                 <div class="row input-heading">    
@@ -157,7 +157,7 @@
   </div>
 
       <div class="row">
-        </div id="heatmap">
+        </div id="heat-map">
         <!-- create the boxes of the heatmap here  -->
         
       </div>
