@@ -18,9 +18,11 @@ stocks.forEach(symbol => {
   promises.push($.get(url));
 });
 
+let stockData; 
+
 Promise.all(promises)
   .then(responses => {
-    const stockData = responses.map(response => response.results);
+    stockData = responses.map(response => response.results); 
     const prices = stockData.map(data => data.map(d => d.c));
     const maxPrice = Math.max(...prices.flat());
     const minPrice = Math.min(...prices.flat());
@@ -55,3 +57,34 @@ Promise.all(promises)
     }
   })
   .catch(error => console.error(error));
+
+function callHeatmap() {
+  const heatmap = document.querySelector('.heat-map');
+  const rows = heatmap.querySelectorAll('tr');
+  const cells = heatmap.querySelectorAll('td');
+
+  const cellWidth = heatmap.offsetWidth / width;
+  const cellHeight = heatmap.offsetHeight / height;
+
+ cells.forEach((cell, index) => {
+    const stockSymbol = stocks[index];
+    cell.setAttribute('title', stockSymbol);
+
+    cell.addEventListener('click', () => {
+      const yahooFinanceUrl = `https://finance.yahoo.com/quote/${stockSymbol}`;
+      window.open(yahooFinanceUrl, '_blank');
+    });
+    
+    cell.style.width = `${cellWidth}px`;
+    cell.style.height = `${cellHeight}px`;
+    
+    });
+    
+    rows.forEach(row => {
+    row.style.height = `${cellHeight}px`;
+    });
+    }
+
+    
+    window.addEventListener('load', callHeatmap);
+    window.addEventListener('resize', callHeatmap);
