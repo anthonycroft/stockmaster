@@ -43,7 +43,61 @@
   /* text-align: center; */
 }
 
-heatmap
+.row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 100%;
+  flex: 1;
+}
+
+input[type="text"]  {
+  /* Your CSS styles here */
+  font-size: 1rem;
+}
+
+input[type="number"]  {
+  /* Your CSS styles here */
+  font-size: 1rem;
+}
+
+.input-group-text  {
+  /* Your CSS styles here */
+  font-size: 1rem;
+}
+
+.display-4, .lead {
+  text-align: center;
+}
+
+.input-heading {
+  font-weight: bold;
+}
+
+.portfolio-retrieval {
+  justify-self: end;
+}
+
+.inline-h4 {
+  display: inline;
+}
+
+.portfolio_header {
+  align-self: flex-end;
+}
+
+h4 span {
+  font-size: 2rem;
+  color:blue;
+}
+
+/*heatmap*/
 .heat-map {
   border-collapse: collapse;
   margin: 20px;
@@ -56,7 +110,6 @@ heatmap
 
 /*news*/
 
-/* CSS */
 .news-container {
   max-width: 800px;
   margin: 0 auto;
@@ -109,4 +162,6 @@ heatmap
 .news-link:hover {
   border-bottom: 2px solid #007bff;
 }
+
+
 

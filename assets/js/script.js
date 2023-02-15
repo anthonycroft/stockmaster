@@ -1,7 +1,7 @@
 // const { right } = require("inquirer/lib/utils/readline");
 
 var apiKey = "7p8pLHEtbHWAcDB5wPeMpcoNiHTQw4Am";
-var stocks;
+const placeholderPortfolio = "DJ30"
 
 function getURL(ticker) {
 
@@ -14,45 +14,7 @@ function getURL(ticker) {
   return queryURL;
 }
 
-function sendRequest_orig(ticker) {
-
-    $.each(stocks, function(index, value) {
-    sendRequest(index, value);
-  })   
-
-  return new Promise((resolve, reject) => {
-    // Build the query URL for the ajax request to the polygon.io site
-
-    var stockURL = getURL(ticker);
-
-    fetch(stockURL)
-      .then(response => response.json())
-      .then(data => {
-        const prices = data.results.map(result => ({
-          timestamp: result.t,
-          closingPrice: result.c,
-        }));
-
-        // add the current stock prices to timeSeriesData 
-        // this is in a more convenient format for valuation and other purposes
-
-        data.results.forEach(result => {
-          let dataPoint = {
-            stock: data.ticker,
-            date: new Date(result.t),
-            price: result.c
-          };
-
-          timeSeriesData.push(dataPoint);
-        });
-
-        resolve(timeSeriesData);
-      })
-      .catch(error => reject(error));
-  });
-}
-
-async function sendRequest (index, ticker, timeSeriesData) {
+async function sendRequest (ticker, timeSeriesData) {
   // Build the query URL for the ajax request to the polygon.io site
 
   var stockURL = getURL(ticker);
@@ -60,10 +22,18 @@ async function sendRequest (index, ticker, timeSeriesData) {
   var response = await fetch(stockURL)
     var data = await response.json()
 
+    // console.log("data in sendRequest is :" + data);
+
   const prices = data.results.map(result => ({
     timestamp: result.t,
-    closingPrice: result.c,
+    closingPrice: result.c
   }));
+
+  // const prices = data.map(result => ({
+  //   timestamp: result.results.t,
+  //   closingPrice: result.results.c,
+  //   ticker: result.ticker
+  // }));
   
   // add the current stock prices to timeSeriesData 
   // this is in a more convenient format for valuation and other purposes
@@ -83,14 +53,16 @@ async function sendRequest (index, ticker, timeSeriesData) {
   const closingPrices = prices.map(price => price.closingPrice);
 
   // call function to create the thumbnails
-  createImage(timestamps, closingPrices, index);
-    return timeSeriesData;
+  createImage(timestamps, closingPrices, ticker);
+
+  return timeSeriesData;
 }
 
-function createImage(timestamps,closingPrices, index ) {
+function createImage(timestamps,closingPrices, ticker) {
 
   // convert unix style dates to standard display format
   const formattedTimestamps = timestamps.map(timestamp => moment(timestamp).format('DD/MM/YYYY'));
+
 
   objJSON = JSON.stringify({
     type:'line',
@@ -123,9 +95,10 @@ function createImage(timestamps,closingPrices, index ) {
     src: imgURL,
     width: "200",
     height: "100",
-    id: "chtThumb" + index + 1,
+    id: "chtThumb_" + ticker,
     class: "image",
-    title: stocks[index]
+    // title: stocks[index]
+    title: ticker
  }).appendTo(".thumbnail");
 
 }
@@ -196,38 +169,20 @@ function drawEquityCurve (valuations) {
   }
 }
 
-function getValuation(timeSeriesData) {
-  // here we want to create a valuation of the portfolio over the last 12mths for each day
-  // NB This function will change when we have stored data we can retrieve, sample data 
-  // included below for testing purposes
+function getValuation(timeSeriesData, portfolioName) {
+  // here we want to create a valuation of the portfolio over the last 30 days for each day
   var portfolio = {};
 
-
   // issue: for each stock in the portfolio, was it owned at the valuation date ?
-  var transactions = [  
-    { "date": "2022-01-01",    "qty": 100,    "ticker": "AAPL" },
-    { "date": "2022-01-02",    "qty": 150,    "ticker": "GOOGL" },
-    { "date": "2022-01-02",    "qty": 300,    "ticker": "JNJ" },
-    { "date": "2022-01-02",    "qty": 60,     "ticker": "PHR" },
-    { "date": "2022-01-02",    "qty": 450,    "ticker": "ARKW" },
-    { "date": "2022-01-02",    "qty": 256,    "ticker": "MASS" },
-    { "date": "2022-01-02",    "qty": 325,    "ticker": "NVDA" },
-    { "date": "2022-01-02",    "qty": 25,     "ticker": "ARKF" },
-    { "date": "2022-01-02",    "qty": 2000,   "ticker": "CELZ" },
-    { "date": "2022-01-02",    "qty": 1250,   "ticker": "SKLZ" },
-    { "date": "2022-01-02",    "qty": -20,    "ticker": "AAPL" },
-    { "date": "2022-01-02",    "qty": 320,    "ticker": "IRDM" },
-    { "date": "2022-01-02",    "qty": 40,     "ticker": "PCAR" },
-    { "date": "2022-01-02",    "qty": 862,    "ticker": "NIU" },
-    { "date": "2022-01-02",    "qty": 245,    "ticker": "PHR" },
-    { "date": "2022-01-02",    "qty": 653,    "ticker": "CELZ" },
-    { "date": "2022-01-02",    "qty": 652,    "ticker": "BEAM" },
-    { "date": "2022-01-02",    "qty": 326,    "ticker": "ARKF" },
-    { "date": "2022-01-02",    "qty": 562,    "ticker": "GFAIW" },
-    { "date": "2022-01-02",    "qty": 254,    "ticker": "PGRWW" },
-    { "date": "2022-01-02",    "qty": 100,    "ticker": "AAPL" },
-    { "date": "2022-01-02",    "qty": 100,    "ticker": "AAPL" }
-  ]
+  // for this we need to retrieve all the transactions for the particular portfolio
+  // and include only those in the valuation that fall on or after the valuation
+  // date.
+
+  let transactions = getPortfolioTransactions(portfolioName)
+
+  if (transactions === 'none' ) {
+    return 
+  }
 
   // Get the current date and the date 12 months ago
   var now = new Date();
@@ -258,7 +213,7 @@ function getValuation(timeSeriesData) {
       if (transactionDate <= startDate) {
 
         // Get the current value of the stock for the transaction date
-        var stockValue = getPrice(startDate, transaction.ticker);
+        var stockValue = getPrice(startDate, transaction.stock);
         // if price is null assume exchange was closed, so dont add a vluation for this date.
         if (stockValue !== null) {
           // Update the portfolio value for the current date
@@ -266,7 +221,7 @@ function getValuation(timeSeriesData) {
             // Initialize the portfolio value for the current date
             portfolio[startDate.toISOString().substring(0, 10)] = 0;
           }
-          portfolio[startDate.toISOString().substring(0, 10)] += transaction.qty * stockValue;
+          portfolio[startDate.toISOString().substring(0, 10)] += transaction.quantity * stockValue;
         }
       }
     }
@@ -304,34 +259,231 @@ function isWeekend(date) {
   return day === 0 || day === 6;
 }
 
-async function init() {
-  //////////////////////////////////////////////////////
-  // main program - key functions are called from here /
-  //////////////////////////////////////////////////////
+function getPortfolioStocks(portfolioName) {
+  // returns the stocks owned in a particular portfolio as a unique list
 
-  // the below are used for testing as we dont have the user inputs yet
-  stocks = ['MSFT','AAPL','AMZN','GOOGL','JNJ','JPM','PG','V', 'GOLD', 'META','SGHLW', 'SAMAW', 'GFAIW', 'CELZ', 'PGRWW',
-  "DOCU","DDD", "NIU","ARKF","NVDA","SKLZ","PCAR","MASS","TREE","PHR","IRDM","BEAM","ARKW","ARKK","ARKG",
-  "PSTG","SQ","IONS","SYRS"]
+  let uniqueStockList = 'none'
+
+  let portfolio = JSON.parse(localStorage.getItem(portfolioName));
+
+  if (portfolio) {
+    // return stocks if the portfolio is not empty
+    const stockList = portfolio.map(stock => `${stock.stock}`);
+    uniqueStockList = [...new Set(stockList)];
+  } else {
+    // set up the portfolio
+    portfolio = [];
+    localStorage.setItem(portfolioName, JSON.stringify(portfolio));
+  }
+
+  // console.log("Unique Stock list is " + uniqueStockList);
+
+  return uniqueStockList;
+}
+
+function getPortfolioTransactions(portfolioName) {
+  // returns the transactions (stock purchases/sales) held against a paritcular
+  // portfolio name
+
+  let transactions = 'none'
+
+  transactions = JSON.parse(localStorage.getItem(portfolioName));
+
+  return transactions;
+}
+
+async function init() {
+  //////////////////////////////////////////////////////////
+  // main program - all key functions are called from here /
+  //////////////////////////////////////////////////////////
+
+  // TODO: Get the last portfolio loaded by the user - and load that 
+
+  // if investor has not set up any portfolio yet then display the DJ30 stocks
+  stocks = ["AAPL", "AXP", "BA", "CAT", "CRM", "CSCO", "CVX", "DIS", "DOW", "GS", 
+    "HD", "HON", "IBM", "INTC", "JNJ", "JPM", "KO", "MCD", "MMM", "MRK", "MSFT", 
+    "NKE", "PG", "TRV", "UNH", "V", "VZ", "WBA", "WMT", "XOM"
+  ]
+
+  // NB we are passing and empty string as the portfolio name as no portfolio loaded - we are simply displaying
+  // DJ30 stocks
+  displayData(stocks, placeholderPortfolio);
+
+}
+
+async function displayData(stocks, portfolioName) {
 
   var answer;
   var timeSeriesData = [];
   var portfolio = {};
 
+  // Remove the current thumbnail images as they may not belong to the new portfolio requested
+  $("#thumbnail img").remove();
+
+  // Remove the current Equity Curve, this needs to be redrawn for the current portfolio
+  $("#viz svg").remove();
+
   await Promise.all(stocks.map(async function(value, index) {
-    answer = await sendRequest(index, value, timeSeriesData);
+    answer = await sendRequest(value, timeSeriesData);
     }));
     
-    portfolio = await getValuation(timeSeriesData);
-    const labels = Object.keys(portfolio);
-    const values = Object.values(portfolio);
+    // dont call these functions if the page has just loaded as the investor has not yet selected a portfolio to analyse/value
+    if (portfolioName !== placeholderPortfolio) {
+      // console.log("We ended up valuing the stocks..")
+      portfolio = await getValuation(timeSeriesData, portfolioName); // this is the investors portfolio they wish to show, this call will retrieve the daily closing prices so we can build an equity curve
+      const labels = Object.keys(portfolio);
+      const values = Object.values(portfolio);
 
-    // function call to draw equity curve
-    drawEquityCurve(portfolio);
+      // function call to draw equity curve
+      drawEquityCurve(portfolio);
 
-    // function call to create heat map
-    createHeatMap(timeSeriesData);
+      // function call to create heat map
+      createHeatMap(timeSeriesData);
+  }
 
+    addTitle(portfolioName);
+
+}
+
+function addTitle(portfolioName) {
+ // Adds a title to the page representing the currently displayed portfolio
+//  console.log("portfolio name  is " + portfolioName);
+ $("span.portfolio_header").text(portfolioName);
+
+}
+
+$(document).ready(function() {
+
+  $('#datepicker').datepicker({
+    format: 'yyyy-mm-dd'
+  });
+
+  $("#submit-transaction").click(function() {
+    // check that all inputs are complete
+    // did user enter portfolio name ?
+
+    let errorsFound = false;
+
+    if ($.trim($("#portfolio").val()) === "") {
+      showAlert("Required Input","You must enter a portfolio name!", 'warning', false)
+      errorsFound = true;
+    } else if ($.trim($("#stock").val()) === "") {
+      showAlert("Required Input","You must enter a value in the stock field!", 'warning', false)
+      errorsFound = true;
+    } else if ($("#stock-amount").val() === 0) {
+      showAlert("Required Input","You must enter a value in the stock amount field!", 'warning', false)
+      errorsFound = true;
+    } else if ($("#price").val() === 0) {
+      showAlert("Required Input","You must enter a value in the price field!", 'warning', false)
+      errorsFound = true;
+    }
+
+    if (errorsFound) {
+      return;
+    }
+
+    const portfolioName = $.trim($("#portfolio").val());
+    const stock = $.trim($("#stock").val());
+    const quantity = $.trim($("#stock-amount").val());
+    const price = $("#price").val();
+    const date = $("#date_picker").val();
+
+      // If all  checks complete we need to store the data
+      // See if portfolio exists in local storage
+
+    // let transactions = JSON.parse($.jStorage.get(portfolioName));
+    let transactions = JSON.parse(localStorage.getItem(portfolioName));
+    
+    if (!transactions) {
+      transactions = [];
+    }
+
+    // call function to add new transaction to 
+    addTransaction(stock, quantity, date, price)
+
+    clearInputFields();
+
+    showAlert("Transaction added.","This stock transaction has been added to the portfolio: " + portfolioName, 'success', false)
+
+    // refresh the display to update charts / valuation
+    const stocks = getPortfolioStocks(portfolioName);
+    displayData(stocks, portfolioName);
+
+    function addTransaction(stockName, qty, date, cost) {
+
+      transactions.push({
+        stock: stockName,
+        quantity: qty,
+        date: date,
+        price: cost
+      });
+
+      localStorage.setItem(portfolioName, JSON.stringify(transactions)); 
+    }
+
+    function clearInputFields () {
+      // clears the portfolio input fields
+      
+      $("#portfolio").val('');
+      $("#stock").val('');
+      $("#stock-amount").val('');
+      $("#price").val('');
+      $("#date_picker").val('');
+    }
+  })
+
+  $("#submit-portfolio").click(function() {
+    // check that all inputs are complete
+    // did user enter portfolio name ?
+
+    let errorsFound = false;
+
+    if ($.trim($("#get-portfolio").val()) === "") {
+      showAlert("Required Input","You must enter a portfolio name!", 'warning', false)
+      errorsFound = true;
+    } 
+
+    if (errorsFound) {
+      return;
+    }
+
+    const portfolioName = $.trim($("#get-portfolio").val());
+    // If valid portfolio name entered, retrieve it if it exists,
+    // else create it
+
+    let stocks = getPortfolioStocks(portfolioName);
+    
+    if (stocks === 'none') {
+
+      // the portfolio does not exist
+      showAlert("No transactions","Portfolio has been set up for you.", 'info', false);
+
+    } else if (stocks.length === 0) {
+      // portfolio found but has no stocks in it.
+      showAlert("No Transactions","The portfolio was found but there are no transactions to display.", 'info', false)
+
+      } else {
+        // we found portfolio name and it has stocks in it
+        displayData(stocks, portfolioName);
+        // console.log("Stocks are in $('#submit-portfolio').click(function() {" + stocks)
+      }
+
+    // clear the portfolio name field
+    $("#get-portfolio").val('');
+    
+  })
+});
+
+const showAlert = async (title, msg, iconType, showCancelButton, confirmButtonText = 'OK') => {
+
+  const result = await Swal.fire({
+    title: title,
+    text: msg,
+    icon: iconType,
+    showCancelButton: showCancelButton,
+    confirmButtonText: confirmButtonText,
+  });
+  return result.isConfirmed;
 }
 
 init();
