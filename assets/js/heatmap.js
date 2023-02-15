@@ -4,5 +4,5 @@ function createHeatMap(timeseriesData) {
 console.log(timeseriesData)
 
 }
-  
+
  
