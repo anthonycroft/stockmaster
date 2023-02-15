@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
   <title>My Portfolio</title>
 </head>
 
@@ -90,9 +91,9 @@
           </script>
         </div>
 
-        <div class="thumbnail col-lg-6 mr-0">
+        <div class="thumbnail col-lg-6 mr-0" id="thumbnail">
           <!-- thumbnail charts dynamically appended here -->
-          <h4 class="mb-3" id="30day">30-day Performance</h4>
+          <h4 class="mb-3" id="30day">30-day Performance<span class="portfolio_header ml-5">401k</span></h4>
         </div>
 
         <div class="col-lg-2">
@@ -117,6 +118,7 @@
                 </div>
                 <div class="row input-heading">
                   Stock<input class="form-control form-control-lg mt-2 mb-2" type="text" placeholder="Enter stock name" id="stock">
+                  <small class="mb-2">NB Enter negative amounts for sales.</small>
                 </div>
                 <div class="row input-heading" >
                   Stock amount<input class="form-control form-control-lg mt-2 mb-2" type="number" placeholder="Enter stock amount" id="stock-amount">
@@ -132,7 +134,7 @@
                   </div>
                 </div>
                 <div class="row input-heading">    
-                  Date<input type="text" class="form-control form-control-lg mt-2 mb-2" id="date_picker" placeholder="Choose a date">
+                  Date<input type="text" class="form-control form-control-lg mt-2 mb-2" id="datepicker" placeholder="Choose a date">
                 </div>
                 <div class="row">
                     <input class="btn btn-primary btn-lg btn-block mt-2" type="submit" value="Submit" id="submit-transaction">  
@@ -166,12 +168,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
   <!-- jQuery -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <!-- jQuery jStorage plugin -->
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jstorage/0.4.12/jstorage.min.js"></script> -->
-
-
+  <!-- jQuery UI library -->
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+  <!-- bootstrap datepicker control -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
   <!-- d3.js -->
   <script src="https://d3js.org/d3.v6.min.js"></script>
+  <!-- sweetalert2 library -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script src="assets/js/script.js"></script>
   <script src="assets/js/heatmap.js"></script>

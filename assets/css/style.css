@@ -84,3 +84,11 @@ input[type="number"]  {
   justify-self: end;
 }
 
+.inline-h4 {
+  display: inline;
+}
+
+.portfolio_header {
+  align-self: flex-end;
+}
+
