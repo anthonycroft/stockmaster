@@ -1,5 +1,5 @@
 # stockmaster
-This project was part of our Front-End development Bootcamp. 
+This project was part of our Front-End Development Bootcamp. 
 This was a group project, where we learnt how to use gitHub and Git for projects when we work within a team. 
 We had the following requirements:
 - Use Bootstrap.
