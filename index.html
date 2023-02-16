@@ -105,7 +105,35 @@
           </div>
 
           <div>
+            <h4 class="mb-3" id="">Holdings</h4>
+            <div class="flex-grid">
+              <div class="row-stocks header">
+                <div class="col">Stock</div>
+                <div class="col">Units Held</div>
+                <div class="col">Price ($)</div>
+                <div class="col">Value ($)</div>
+                <div class="col">Cost ($)</div>
+                <div class="col">Gain/Loss ($)</div>
+                <div class="col">Gain/Loss (%)</div>
+              </div>
 
+              <!-- Use a loop to create rows for each stock -->
+              <div id="stocks-table">
+                <!-- Rows will be added dynamically here -->
+              </div>
+
+              <!-- Add a totals row at the bottom of the table -->
+              <div class="row totals">
+                <div class="col">Total</div>
+                <div class="col" id="total-units"></div>
+                <div class="col"></div>
+                <div class="col" id="total-value"></div>
+                <div class="col" id="total-cost"></div>
+                <div class="col" id="total-gain-loss"></div>
+                <div class="col" id="total-gain-loss-percentage"></div>
+              </div>
+              
+            </div>
 
           </div>
 

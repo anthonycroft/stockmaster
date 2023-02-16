@@ -72,3 +72,65 @@ h4 span {
   color:blue;
 }
 
+.col {
+  height: 60px;
+  background-color: rgb(10, 59, 88);
+  color: white;
+  font-weight: bold;
+  flex-basis: 0;
+  flex-grow: 1;
+  text-align: center;
+  padding: 5px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+
+.flex-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.row-stocks {
+  display: flex;
+  flex-direction: row;
+  border-bottom: 1px solid #ccc;
+  padding: 10px;
+}
+
+.col-stocks{
+  height: 30px;
+  /* background-color: rgb(10, 59, 88); */
+  /* color: white; */
+  font-weight: bold;
+  flex-basis: 0;
+  flex-grow: 1;
+  text-align: center;
+  padding: 5px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+
+.row.totals {
+  height: 60px;
+  /* background-color: rgb(10, 59, 88); */
+  /* color: white; */
+  font-weight: bold;
+  flex-basis: 0;
+  flex-grow: 1;
+  text-align: center;
+  padding: 5px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+
+
+

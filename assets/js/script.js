@@ -311,7 +311,7 @@ function getHoldings(portfolioName, timeSeriesData) {
     var stock = stocks[symbol];
     console.log(stock.name + ": " + stock.avgCost + " (" + stock.quantity + ")");
 
-    // get yesterday's closintg price
+    // get yesterday's closing price
     var yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const stockPrice = getPrice(yesterday, stock.name);
@@ -321,6 +321,8 @@ function getHoldings(portfolioName, timeSeriesData) {
     console.log("Stock: " + stocks[symbol].name + " Latest Price is " + stockPrice);
   
   }
+
+  return stocks
 
   function getPrice(date, ticker) {
 
@@ -337,6 +339,60 @@ function getHoldings(portfolioName, timeSeriesData) {
       return null;
     }
   }
+
+}
+
+function createHoldingsTable (holdings) {
+  // Loop over the stocks object and generate HTML code for each row
+  const options = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+    
+  // accumulate totals as we loop over the transactions
+  var formattedValueTotal = 0;
+  var formattedAvgCostTotal = 0;
+  var formattedGainLossTotal = 0;
+  var formattedGainLossPercentOverall = 0;
+
+  $.each(holdings, function (symbol, stock) {
+
+    var formattedValue = (stock.price * stock.quantity)
+    formattedValue = formattedValue.toLocaleString('en-US', options);
+    formattedValueTotal += (stock.price * stock.quantity);
+    
+    var formattedAvgCost = stock.avgCost * stock.quantity;
+    formattedAvgCost = formattedAvgCost.toLocaleString('en-US', options);
+    formattedAvgCostTotal += (stock.avgCost * stock.quantity)
+
+    var formattedGainLoss = (stock.price * stock.quantity) -  (stock.avgCost * stock.quantity);
+    formattedGainLoss = formattedGainLoss.toLocaleString('en-US', options);
+    formattedGainLossTotal += ((stock.price * stock.quantity) -  (stock.avgCost * stock.quantity));
+
+    var formattedGainLossPercent = (((stock.price * stock.quantity) - (stock.avgCost * stock.quantity)) / (stock.avgCost * stock.quantity)) * 100
+    formattedGainLossPercent = formattedGainLossPercent.toLocaleString('en-US', options);
+
+    const html = '<div class="row-stocks">' +
+      '<div class="col-stocks">' + stock.name + '</div>' +
+      '<div class="col-stocks">' + stock.quantity + '</div>' +
+      '<div class="col-stocks">' + stock.price + '</div>' +
+      '<div class="col-stocks">' + formattedValue + '</div>' +   // value
+      '<div class="col-stocks">' + formattedAvgCost + '</div>' +
+      '<div class="col-stocks">' + formattedGainLoss + '</div>' +
+      '<div class="col-stocks">' + formattedGainLossPercent + '</div>' +
+      '</div>';
+
+    // Add the HTML code to the stocks table
+    $('#stocks-table').append(html);
+  
+  });
+
+  // update the table totals
+
+  $('#total-value').text(formattedValueTotal.toLocaleString('en-US', options));
+  $('#total-cost').text(formattedAvgCostTotal.toLocaleString('en-US', options));
+  $('#total-gain-loss').text(formattedGainLossTotal.toLocaleString('en-US', options));
+
+  formattedGainLossPercentOverall = (formattedGainLossTotal / formattedAvgCostTotal) * 100
+  formattedGainLossPercentOverall = formattedGainLossPercentOverall.toLocaleString('en-US', options)
+  $('#total-gain-loss-percentage').text(formattedGainLossPercentOverall);
 
 }
 
@@ -424,7 +480,9 @@ async function displayData(stocks, portfolioName) {
       drawEquityCurve(portfolio);
 
       if (portfolioName != placeholderPortfolio) {
-        getHoldings(portfolioName, timeSeriesData);
+        var holdings = getHoldings(portfolioName, timeSeriesData);
+
+        createHoldingsTable(holdings)
       }
 
       // function call to create heat map
