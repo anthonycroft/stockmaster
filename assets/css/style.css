@@ -1,32 +1,7 @@
 
-
-/* .image {
-  position: absolute;
-  height: 100px;
-  top: 0;
-  left: 0;
-} */
-
-/* .image:nth-child(2) {
-  top: 100px;
-}
-
-.image:nth-child(3) {
-  top: 200px;
-}
-.image:nth-child(4) {
-  top: 300px;
-}
-.image:nth-child(5) {
-  top: 400px;
-}
-.image:nth-child(6) {
-  /* top: 500px; */
- /* */
-
 .thumbnail {
-  width: 75%;
-  display: inline-block !important;
+  /* width: 60%; */
+  /* display: inline-block !important; */
 }
 
 
@@ -54,7 +29,7 @@
   display: flex;
   flex-direction: column;
   flex-basis: 100%;
-  flex: 1;
+  flex: 0;
 }
 
 input[type="text"]  {
