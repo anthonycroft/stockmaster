@@ -109,7 +109,7 @@ function drawEquityCurve (valuations) {
   });
 
   let dim = {
-    "width": 850,
+    "width": 1250,
     "height": 450,
     "margin": 50
   }
