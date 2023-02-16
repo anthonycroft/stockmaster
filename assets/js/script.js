@@ -22,8 +22,6 @@ async function sendRequest (ticker, timeSeriesData) {
   var response = await fetch(stockURL)
     var data = await response.json()
 
-    // console.log("data in sendRequest is :" + data);
-
   const prices = data.results.map(result => ({
     timestamp: result.t,
     closingPrice: result.c
@@ -44,6 +42,7 @@ async function sendRequest (ticker, timeSeriesData) {
       date: new Date(result.t),
       price: result.c
     };
+    console.log("Stock is " + dataPoint.stock + " date is " + dataPoint.date + " and price is " + dataPoint.price)
 
     timeSeriesData.push(dataPoint);
   });
@@ -62,7 +61,6 @@ function createImage(timestamps,closingPrices, ticker) {
 
   // convert unix style dates to standard display format
   const formattedTimestamps = timestamps.map(timestamp => moment(timestamp).format('DD/MM/YYYY'));
-
 
   objJSON = JSON.stringify({
     type:'line',
@@ -111,7 +109,7 @@ function drawEquityCurve (valuations) {
   });
 
   let dim = {
-    "width": 850,
+    "width": 1250,
     "height": 450,
     "margin": 50
   }
@@ -184,14 +182,14 @@ function getValuation(timeSeriesData, portfolioName) {
     return 
   }
 
-  // Get the current date and the date 12 months ago
+  // Get the current date and the date 1 month ago
   var now = new Date();
-  var oneYearAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+  var oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
 
   // Create an object to store the portfolio value for each date
 
   // Set the start date to the date 12 months ago
-  var startDate = oneYearAgo;
+  var startDate = oneMonthAgo;
 
   // Loop through each day and update the portfolio value
   var yesterday = new Date();
@@ -252,6 +250,150 @@ function getValuation(timeSeriesData, portfolioName) {
   }
 
   return portfolio;
+}
+
+
+
+function getHoldings(portfolioName, timeSeriesData) {
+  // here we want to create a valuation of each stock
+  var stocks = {};
+
+  // issue: for each stock in the portfolio, was it owned at the valuation date ?
+  // for this we need to retrieve all the transactions for the particular portfolio
+  // and include only those in the valuation that fall on or after the valuation
+  // date.
+
+  let transactions = getPortfolioTransactions(portfolioName)
+
+  if (transactions === 'none' ) {
+    return 
+  }
+
+  // Get the current date and the date 12 months ago
+  var now = new Date();
+  // var oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+
+  // Create an object to store the portfolio value for each date
+
+  // Set the start date to the date 12 months ago
+  // var startDate = oneMonthAgo;
+    
+    // Loop through the transactions and update the portfolio value for the current date
+  for (var i = 0; i < transactions.length; i++) {
+    var transaction = transactions[i];
+
+    var stockName = transaction.stock;
+
+    // User Story: I want to go through my stock transactions and work out the average purchase price 
+    // of those stocks, and record that information alongside the ticker, current units held and
+    // current price (yesterday's closing price). I want to store all this infcormation in a single
+    // object for each ticker for easy retrieval later
+
+    // add the stock quantity bought or sold to running total
+    addStock(stockName, transaction.price, transaction.quantity)
+
+  }
+
+  function addStock(symbol, avgCost, quantity) {
+    // check if the stock already exists in the stocks object
+    if (stocks[symbol]) {
+      // if it does, update its properties
+      stocks[symbol].avgCost = ((stocks[symbol].avgCost * stocks[symbol].quantity) + (avgCost * quantity)) / (stocks[symbol].quantity + quantity);
+      stocks[symbol].quantity += quantity;
+    } else {
+      // if it doesn't, create a new stock object and add it to the stocks object
+      stocks[symbol] = { name: symbol, avgCost: avgCost, quantity: quantity };
+    }
+  }
+
+  // get yesterday's closing price and add to object
+  for (var symbol in stocks) {
+    var stock = stocks[symbol];
+    console.log(stock.name + ": " + stock.avgCost + " (" + stock.quantity + ")");
+
+    // get yesterday's closing price
+    var yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const stockPrice = getPrice(yesterday, stock.name);
+  
+    // add the price to our array of stock objs for calculating performance
+    stocks[symbol].price = stockPrice;
+    console.log("Stock: " + stocks[symbol].name + " Latest Price is " + stockPrice);
+  
+  }
+
+  return stocks
+
+  function getPrice(date, ticker) {
+
+    var valuationDate = moment(date).format("YYYY-MM-DD")
+  
+    let filteredData = timeSeriesData.filter(dataPoint => {
+      return moment(dataPoint.date).format("YYYY-MM-DD") === valuationDate &&
+             dataPoint.stock === ticker;
+    });
+  
+    if (filteredData.length > 0) {
+      return filteredData[0].price;
+    } else {
+      return null;
+    }
+  }
+
+}
+
+function createHoldingsTable (holdings) {
+  // Loop over the stocks object and generate HTML code for each row
+  const options = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+    
+  // accumulate totals as we loop over the transactions
+  var formattedValueTotal = 0;
+  var formattedAvgCostTotal = 0;
+  var formattedGainLossTotal = 0;
+  var formattedGainLossPercentOverall = 0;
+
+  $.each(holdings, function (symbol, stock) {
+
+    var formattedValue = (stock.price * stock.quantity)
+    formattedValue = formattedValue.toLocaleString('en-US', options);
+    formattedValueTotal += (stock.price * stock.quantity);
+    
+    var formattedAvgCost = stock.avgCost * stock.quantity;
+    formattedAvgCost = formattedAvgCost.toLocaleString('en-US', options);
+    formattedAvgCostTotal += (stock.avgCost * stock.quantity)
+
+    var formattedGainLoss = (stock.price * stock.quantity) -  (stock.avgCost * stock.quantity);
+    formattedGainLoss = formattedGainLoss.toLocaleString('en-US', options);
+    formattedGainLossTotal += ((stock.price * stock.quantity) -  (stock.avgCost * stock.quantity));
+
+    var formattedGainLossPercent = (((stock.price * stock.quantity) - (stock.avgCost * stock.quantity)) / (stock.avgCost * stock.quantity)) * 100
+    formattedGainLossPercent = formattedGainLossPercent.toLocaleString('en-US', options);
+
+    const html = '<div class="row-stocks">' +
+      '<div class="col-stocks">' + stock.name + '</div>' +
+      '<div class="col-stocks">' + stock.quantity + '</div>' +
+      '<div class="col-stocks">' + stock.price + '</div>' +
+      '<div class="col-stocks">' + formattedValue + '</div>' +   // value
+      '<div class="col-stocks">' + formattedAvgCost + '</div>' +
+      '<div class="col-stocks">' + formattedGainLoss + '</div>' +
+      '<div class="col-stocks">' + formattedGainLossPercent + '</div>' +
+      '</div>';
+
+    // Add the HTML code to the stocks table
+    $('#stocks-table').append(html);
+  
+  });
+
+  // update the table totals
+
+  $('#total-value').text(formattedValueTotal.toLocaleString('en-US', options));
+  $('#total-cost').text(formattedAvgCostTotal.toLocaleString('en-US', options));
+  $('#total-gain-loss').text(formattedGainLossTotal.toLocaleString('en-US', options));
+
+  formattedGainLossPercentOverall = (formattedGainLossTotal / formattedAvgCostTotal) * 100
+  formattedGainLossPercentOverall = formattedGainLossPercentOverall.toLocaleString('en-US', options)
+  $('#total-gain-loss-percentage').text(formattedGainLossPercentOverall);
+
 }
 
 function isWeekend(date) {
@@ -317,7 +459,7 @@ async function displayData(stocks, portfolioName) {
   var timeSeriesData = [];
   var portfolio = {};
 
-  // Remove the current thumbnail images as they may not belong to the new portfolio requested
+  // Remove the current thumbnail images as they need to be defined for the selected portfolio
   $("#thumbnail img").remove();
 
   // Remove the current Equity Curve, this needs to be redrawn for the current portfolio
@@ -329,7 +471,7 @@ async function displayData(stocks, portfolioName) {
     
     // dont call these functions if the page has just loaded as the investor has not yet selected a portfolio to analyse/value
     if (portfolioName !== placeholderPortfolio) {
-      // console.log("We ended up valuing the stocks..")
+
       portfolio = await getValuation(timeSeriesData, portfolioName); // this is the investors portfolio they wish to show, this call will retrieve the daily closing prices so we can build an equity curve
       const labels = Object.keys(portfolio);
       const values = Object.values(portfolio);
@@ -337,17 +479,25 @@ async function displayData(stocks, portfolioName) {
       // function call to draw equity curve
       drawEquityCurve(portfolio);
 
+      if (portfolioName != placeholderPortfolio) {
+        var holdings = getHoldings(portfolioName, timeSeriesData);
+
+        createHoldingsTable(holdings)
+      }
+
       // function call to create heat map
       createHeatMap(timeSeriesData);
+
   }
 
     addTitle(portfolioName);
+
 
 }
 
 function addTitle(portfolioName) {
  // Adds a title to the page representing the currently displayed portfolio
-//  console.log("portfolio name  is " + portfolioName);
+
  $("span.portfolio_header").text(portfolioName);
 
 }
@@ -384,9 +534,11 @@ $(document).ready(function() {
 
     const portfolioName = $.trim($("#portfolio").val());
     const stock = $.trim($("#stock").val());
-    const quantity = $.trim($("#stock-amount").val());
-    const price = $("#price").val();
-    const date = $("#date_picker").val();
+    const quantity = Math.ceil(parseFloat($.trim($("#stock-amount").val())));
+    const price = parseFloat($("#price").val());
+    const roundedPrice = Number(price.toFixed(4));
+    const date = $('#datepicker').datepicker('getDate');
+    const dateString = moment(date).format('YYYY-MM-DD');
 
       // If all  checks complete we need to store the data
       // See if portfolio exists in local storage
@@ -399,7 +551,9 @@ $(document).ready(function() {
     }
 
     // call function to add new transaction to 
-    addTransaction(stock, quantity, date, price)
+    addTransaction(stock, quantity, dateString, roundedPrice)
+
+    // console.log("stock: " + stock + " quantity: " + quantity + "date: " + dateString + " roundedPrice " + roundedPrice);
 
     clearInputFields();
 
