@@ -155,7 +155,38 @@
           
           
           <!-- ANDREA PLEASE PASTE CARD CODE IN HERE: -->
-          
+          <h5 class="mt-3 mb-3">Enter transactions</h5>
+          <div class="card" style="width: 20rem;">
+            <div class="card-body ml-4">
+                <div class="row input-heading" >
+                  Portfolio Name<input class="form-control form-control-lg mt-2 mb-2" type="text" placeholder="Enter portfolio name" id="portfolio">
+                <small class="mb-2">NB If portfolio name does not exist it will be created.</small>
+                </div>
+                <div class="row input-heading">
+                  Stock Ticker (e.g. AAPL)<input class="form-control form-control-lg mt-2 mb-2" type="text" placeholder="Enter stock name" id="stock">
+                </div>
+                <div class="row input-heading" >
+                  Stock Amount<input class="form-control form-control-lg mt-2 mb-2" type="number" placeholder="Enter stock amount" id="stock-amount">
+                <label class="form-label" for="stock-amount"></label>
+                </div>
+                <div class="row input-heading">    
+                  Bought/Sold Price
+                  <div class="input-group input-group-lg" >
+                    <div class="input-group-prepend">
+                      <span class="input-group-text mt-2 mb-2">$</span>
+                    </div>
+                    <input type="number" class="form-control mt-2" aria-label="Price" placeholder="Price" id="price">
+                    <small class="mb-2">NB Enter negative amounts for sales.</small>
+                  </div>
+                </div>
+                <div class="row input-heading">    
+                  Date<input type="text" class="form-control form-control-lg mt-2 mb-2" id="datepicker" placeholder="Choose a date">
+                </div>
+                <div class="row">
+                    <input class="btn btn-primary btn-lg btn-block mt-2" type="submit" value="Submit" id="submit-transaction">  
+                </div>
+            </div>
+          </div>
 
           <!-- -------------------------------------- -->
 
