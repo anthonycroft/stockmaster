@@ -1,5 +1,6 @@
-const startDate = '2023-01-01';
-const endDate = '2023-01-31';
+
+var dateEnd = moment().subtract(1, 'days').format('YYYY-MM-DD')
+var dateStart = moment(dateEnd).subtract(30, 'days').format('YYYY-MM-DD')
 
 const width = 30;
 const height = Math.ceil(stocks.length / width);
@@ -14,7 +15,7 @@ const colorScale = {
 
 const promises = [];
 stocks.forEach(symbol => {
-  const url = `https://api.polygon.io/v2/aggs/ticker/${symbol}/range/1/day/${startDate}/${endDate}?apiKey=7p8pLHEtbHWAcDB5wPeMpcoNiHTQw4Am`;
+  const url = `https://api.polygon.io/v2/aggs/ticker/${symbol}/range/1/day/${dateStart}/${dateEnd}?apiKey=7p8pLHEtbHWAcDB5wPeMpcoNiHTQw4Am`;
   promises.push($.get(url));
 });
 
