@@ -5,8 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <link rel="stylesheet" href="assets/css/reset.css" />
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <!-- <link rel="stylesheet" href="assets/CSS/reset.css" /> -->
+  <link rel="stylesheet" type="text/html" href="assets/css/style.css" />
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
@@ -58,6 +58,49 @@
       </div>
     </div>
   </header>
+
+  <div class="card" style="width: 20rem;">
+        
+        
+    <div class="card-body">
+        <div class="row" >
+        Portfolio<input class="form-control form-control-lg" type="text" placeholder="Enter portfolio name here" id="portfolio">
+        </div>
+        <div class="row">
+        Stock<input class="form-control form-control-lg" type="text" placeholder="Enter stock name here" id="stock">
+        </div>
+        <div class="row" >
+        Stock amount<input class="form-control form-control-lg" type="number" placeholder="Enter stock amount here" id="stock-amount">
+        <label class="form-label" for="typeNumber"></label>
+        </div>
+        <div class="row">    
+        Price/Stock<div class="input-group mb-3 input-group-lg" >
+            <div class="input-group-prepend">
+              <span class="input-group-text">£</span>
+            </div>
+            <input type="text" class="form-control" aria-label="Price" placeholder="Price" id="price">
+        </div>
+        </div>
+        <div class="row">    
+          Date<input type="text" class="form-control form-control-lg" id="my_date_picker" placeholder="Choose a date">
+        </div>
+        <div class="row">
+            <input class="btn btn-primary btn-lg btn-block" type="submit" value="Submit" id="submit">
+            
+        </div>
+    
+    </div>
+</div>
+
+
+
+
+
+      
+    
+  
+              
+
 
     <div class="page-wrapper container-fluid">
       <div class="row justify-content-center">
