@@ -423,6 +423,7 @@ function getPortfolioStocks(portfolioName) {
     // return stocks if the portfolio is not empty
     const stockList = portfolio.map(stock => `${stock.stock}`);
     uniqueStockList = [...new Set(stockList)];
+    console.log(uniqueStockList);
   } else {
     // set up the portfolio
     portfolio = [];
@@ -557,8 +558,8 @@ $(document).ready(function() {
       return;
     }
 
-    const portfolioName = $.trim($("#portfolio").val());
-    const stock = $.trim($("#stock").val());
+    const portfolioName = $.trim($("#portfolio").val()).toLowerCase();
+    const stock = $.trim($("#stock").val()).toUpperCase();
     const quantity = Math.ceil(parseFloat($.trim($("#stock-amount").val())));
     const price = parseFloat($("#price").val());
     const roundedPrice = Number(price.toFixed(4));
@@ -602,7 +603,7 @@ $(document).ready(function() {
     function clearInputFields () {
       // clears the portfolio input fields
       
-      $("#portfolio").val('');
+      // $("#portfolio").val('');   
       $("#stock").val('');
       $("#stock-amount").val('');
       $("#price").val('');
@@ -625,7 +626,7 @@ $(document).ready(function() {
       return;
     }
 
-    const portfolioName = $.trim($("#get-portfolio").val());
+    const portfolioName = $.trim($("#get-portfolio").val()).toLowerCase();
     // If valid portfolio name entered, retrieve it if it exists,
     // else create it
 
