@@ -73,7 +73,6 @@ h4 span {
   font-weight: bold;
   flex-basis: 0;
   flex-grow: 1;
-  /* text-align: center; */
   padding: 5px;
   display: flex;
   justify-content: center;
@@ -206,6 +205,27 @@ h4 span {
 
 .row-stocks:nth-child(even) {
   background-color: #f2f2f2;
+}
+
+@media (max-width: 768px) {
+  /* styles for small screens */
+  .col {
+    font-size: 0.6rem;
+  }
+
+  .col-totals {
+    font-size: 0.8rem;
+  }
+
+  .col-stocks {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  #viz {
+    display: none;
+  }
 }
 
 
