@@ -100,10 +100,10 @@ function callHeatMap() {
   cell.appendChild(stockSymbolElement);
   cell.setAttribute('title', stockSymbol);
     
-  // cell.addEventListener('click', () => {
-  //   const yahooFinanceUrl = `https://finance.yahoo.com/quote/${stockSymbol}`;
-  //   window.open(yahooFinanceUrl, '_blank');
-  // });
+  cell.addEventListener('click', () => {
+  const yahooFinanceUrl = `https://finance.yahoo.com/quote/${stockSymbol}`;
+  window.open(yahooFinanceUrl, '_blank');
+  });
       
   cell.style.width = `${cellWidth * 2}px`;
   cell.style.height = `${cellHeight}px`;
@@ -115,9 +115,6 @@ function callHeatMap() {
   });
 
 }
-
-
-
 
   // window.removeEventListener('load', callHeatMap);
   // window.removeEventListener('resize', callHeatmap);
