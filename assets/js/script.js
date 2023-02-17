@@ -545,10 +545,10 @@ $(document).ready(function() {
     } else if ($.trim($("#stock").val()) === "") {
       showAlert("Required Input","You must enter a value in the stock field!", 'warning', false)
       errorsFound = true;
-    } else if ($("#stock-amount").val() === 0) {
+    } else if ($.trim($("#stock-amount").val()) === "") {
       showAlert("Required Input","You must enter a value in the stock amount field!", 'warning', false)
       errorsFound = true;
-    } else if ($("#price").val() === 0) {
+    } else if ($.trim($("#price").val() === "")) {
       showAlert("Required Input","You must enter a value in the price field!", 'warning', false)
       errorsFound = true;
     }

@@ -75,7 +75,6 @@ h4 span {
   flex-grow: 1;
   /* text-align: center; */
   padding: 5px;
-  font-weight: bold;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -95,9 +94,13 @@ h4 span {
 }
 
 .row-stocks.totals {
-  font-weight: 900;
   border-bottom: #333 1px solid;
   border-top: #333 1px solid;
+  font-size: large;
+  color: rgb(60, 60, 64);
+  background-color: #ebecf6;
+  height: 4rem;
+  font-weight: bold;
 }
 
 .col-stocks, .col-totals{
@@ -106,7 +109,6 @@ h4 span {
   flex-basis: 0;
   flex-grow: 1;
   padding: 5px;
-  font-weight: bold;
   display: flex;
   justify-content: end;
   text-align: left;
@@ -129,7 +131,7 @@ h4 span {
 .heat-map td {
   /* width: 30px; */
   height: 30px;
-  border: 2px solid gray;
+  border: 1px solid gray;
 }
 
 /*news*/
