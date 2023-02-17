@@ -1,7 +1,7 @@
-// const { right } = require("inquirer/lib/utils/readline");
-
 var apiKey = "7p8pLHEtbHWAcDB5wPeMpcoNiHTQw4Am";
-const placeholderPortfolio = "DJ30"
+const proxyPortfolio = "DJ30"
+
+// var stocks;
 
 function getURL(ticker) {
 
@@ -26,12 +26,6 @@ async function sendRequest (ticker, timeSeriesData) {
     timestamp: result.t,
     closingPrice: result.c
   }));
-
-  // const prices = data.map(result => ({
-  //   timestamp: result.results.t,
-  //   closingPrice: result.results.c,
-  //   ticker: result.ticker
-  // }));
   
   // add the current stock prices to timeSeriesData 
   // this is in a more convenient format for valuation and other purposes
@@ -42,12 +36,11 @@ async function sendRequest (ticker, timeSeriesData) {
       date: new Date(result.t),
       price: result.c
     };
-    console.log("Stock is " + dataPoint.stock + " date is " + dataPoint.date + " and price is " + dataPoint.price)
+    // console.log("Stock is " + dataPoint.stock + " date is " + dataPoint.date + " and price is " + dataPoint.price)
 
     timeSeriesData.push(dataPoint);
   });
 
-  // const timestamps = prices.map(price => moment(price.timestamp).format("MM/DD/YYYY"));
   const timestamps = prices.map(price => price.timestamp);
   const closingPrices = prices.map(price => price.closingPrice);
 
@@ -102,7 +95,7 @@ function createImage(timestamps,closingPrices, ticker) {
 }
 
 function drawEquityCurve (valuations) {
-  // draws a D3.js chart representin investor's equity curve
+  // draws a D3.js chart representing investor's equity curve
 
   const data = Object.entries(valuations).map(([date, value]) => {
     return {date: new Date(date), equity: value};
@@ -186,8 +179,6 @@ function getValuation(timeSeriesData, portfolioName) {
   var now = new Date();
   var oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
 
-  // Create an object to store the portfolio value for each date
-
   // Set the start date to the date 12 months ago
   var startDate = oneMonthAgo;
 
@@ -252,8 +243,6 @@ function getValuation(timeSeriesData, portfolioName) {
   return portfolio;
 }
 
-
-
 function getHoldings(portfolioName, timeSeriesData) {
   // here we want to create a valuation of each stock
   var stocks = {};
@@ -269,16 +258,7 @@ function getHoldings(portfolioName, timeSeriesData) {
     return 
   }
 
-  // Get the current date and the date 12 months ago
-  var now = new Date();
-  // var oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-
-  // Create an object to store the portfolio value for each date
-
-  // Set the start date to the date 12 months ago
-  // var startDate = oneMonthAgo;
-    
-    // Loop through the transactions and update the portfolio value for the current date
+  // Loop through the transactions and update the portfolio value for the current date
   for (var i = 0; i < transactions.length; i++) {
     var transaction = transactions[i];
 
@@ -309,7 +289,7 @@ function getHoldings(portfolioName, timeSeriesData) {
   // get yesterday's closing price and add to object
   for (var symbol in stocks) {
     var stock = stocks[symbol];
-    console.log(stock.name + ": " + stock.avgCost + " (" + stock.quantity + ")");
+    // console.log(stock.name + ": " + stock.avgCost + " (" + stock.quantity + ")");
 
     // get yesterday's closing price
     var yesterday = new Date();
@@ -318,13 +298,14 @@ function getHoldings(portfolioName, timeSeriesData) {
   
     // add the price to our array of stock objs for calculating performance
     stocks[symbol].price = stockPrice;
-    console.log("Stock: " + stocks[symbol].name + " Latest Price is " + stockPrice);
+    // console.log("Stock: " + stocks[symbol].name + " Latest Price is " + stockPrice);
   
   }
 
   return stocks
 
   function getPrice(date, ticker) {
+    // fetches the price for a particular stock and date from timeSeriesData
 
     var valuationDate = moment(date).format("YYYY-MM-DD")
   
@@ -352,6 +333,8 @@ function createHoldingsTable (holdings) {
   var formattedGainLossTotal = 0;
   var formattedGainLossPercentOverall = 0;
 
+  clearHoldings();
+
   $.each(holdings, function (symbol, stock) {
 
     var formattedValue = (stock.price * stock.quantity)
@@ -369,14 +352,15 @@ function createHoldingsTable (holdings) {
     var formattedGainLossPercent = (((stock.price * stock.quantity) - (stock.avgCost * stock.quantity)) / (stock.avgCost * stock.quantity)) * 100
     formattedGainLossPercent = formattedGainLossPercent.toLocaleString('en-US', options);
 
+    // create the HTML elements - rows of the Holdings table
     const html = '<div class="row-stocks">' +
-      '<div class="col-stocks">' + stock.name + '</div>' +
+      '<div class="col-stocks ticker">' + stock.name + '</div>' +
       '<div class="col-stocks">' + stock.quantity + '</div>' +
       '<div class="col-stocks">' + stock.price + '</div>' +
       '<div class="col-stocks">' + formattedValue + '</div>' +   // value
       '<div class="col-stocks">' + formattedAvgCost + '</div>' +
-      '<div class="col-stocks">' + formattedGainLoss + '</div>' +
-      '<div class="col-stocks">' + formattedGainLossPercent + '</div>' +
+      '<div class="col-stocks gainloss"><span class="">' + formattedGainLoss + '</span></div>' +
+      '<div class="col-stocks gainlossperc"><span class="">' + formattedGainLossPercent + '</span></div>' +
       '</div>';
 
     // Add the HTML code to the stocks table
@@ -385,7 +369,6 @@ function createHoldingsTable (holdings) {
   });
 
   // update the table totals
-
   $('#total-value').text(formattedValueTotal.toLocaleString('en-US', options));
   $('#total-cost').text(formattedAvgCostTotal.toLocaleString('en-US', options));
   $('#total-gain-loss').text(formattedGainLossTotal.toLocaleString('en-US', options));
@@ -394,6 +377,34 @@ function createHoldingsTable (holdings) {
   formattedGainLossPercentOverall = formattedGainLossPercentOverall.toLocaleString('en-US', options)
   $('#total-gain-loss-percentage').text(formattedGainLossPercentOverall);
 
+  colorNegativesRed();
+
+  function colorNegativesRed() {
+    // changes negative values in holdings table to red
+  
+    // get all the value, gainloss, and gainlossperc cells
+    let gainlossCells = document.querySelectorAll('.col-stocks.gainloss span');
+    let gainlosspercCells = document.querySelectorAll('.col-stocks.gainlossperc span');
+  
+    // loop through each gainloss cell and add the .negative class if the value is negative
+    gainlossCells.forEach(function(cell) {
+      if (cell.textContent < 0) {
+        cell.classList.add('negative');
+      }
+    });
+  
+    // loop through each gainlossperc cell and add the .negative class if the value is negative
+    gainlosspercCells.forEach(function(cell) {
+      if (cell.textContent < 0) {
+        cell.classList.add('negative');
+      }
+    });
+  }
+}
+
+function clearHoldings() {
+  // clears the Holdings table before it is rebuilt
+  $('#stocks-table').empty();
 }
 
 function isWeekend(date) {
@@ -449,11 +460,32 @@ async function init() {
 
   // NB we are passing and empty string as the portfolio name as no portfolio loaded - we are simply displaying
   // DJ30 stocks
-  displayData(stocks, placeholderPortfolio);
+  displayData(stocks, proxyPortfolio);
+
+  hideElements();
 
 }
 
+function hideElements() {
+  const elementsToHide = document.querySelectorAll('.portfolio');
+
+  elementsToHide.forEach(element => {
+    element.style.display = 'none';
+  });
+}
+
+function showElements() {
+  const elementsToShow = document.querySelectorAll('.portfolio');
+
+  elementsToShow.forEach(element => {
+    element.style.display = 'block';
+  });
+}
+
+
 async function displayData(stocks, portfolioName) {
+  // Displays data to the screen whenever the portfolio changes, including charts
+  // and portfolio holdings (if an investor portfolio is currently loaded)
 
   var answer;
   var timeSeriesData = [];
@@ -470,7 +502,7 @@ async function displayData(stocks, portfolioName) {
     }));
     
     // dont call these functions if the page has just loaded as the investor has not yet selected a portfolio to analyse/value
-    if (portfolioName !== placeholderPortfolio) {
+    if (portfolioName !== proxyPortfolio) {
 
       portfolio = await getValuation(timeSeriesData, portfolioName); // this is the investors portfolio they wish to show, this call will retrieve the daily closing prices so we can build an equity curve
       const labels = Object.keys(portfolio);
@@ -479,20 +511,13 @@ async function displayData(stocks, portfolioName) {
       // function call to draw equity curve
       drawEquityCurve(portfolio);
 
-      if (portfolioName != placeholderPortfolio) {
-        var holdings = getHoldings(portfolioName, timeSeriesData);
+      var holdings = getHoldings(portfolioName, timeSeriesData);
 
-        createHoldingsTable(holdings)
-      }
+      createHoldingsTable(holdings)
 
-      // function call to create heat map
-      createHeatMap(timeSeriesData);
-
-  }
-
-    addTitle(portfolioName);
-
-
+    }
+      // Adds title to page
+      addTitle(portfolioName);
 }
 
 function addTitle(portfolioName) {
@@ -553,8 +578,6 @@ $(document).ready(function() {
     // call function to add new transaction to 
     addTransaction(stock, quantity, dateString, roundedPrice)
 
-    // console.log("stock: " + stock + " quantity: " + quantity + "date: " + dateString + " roundedPrice " + roundedPrice);
-
     clearInputFields();
 
     showAlert("Transaction added.","This stock transaction has been added to the portfolio: " + portfolioName, 'success', false)
@@ -562,6 +585,7 @@ $(document).ready(function() {
     // refresh the display to update charts / valuation
     const stocks = getPortfolioStocks(portfolioName);
     displayData(stocks, portfolioName);
+    showElements();
 
     function addTransaction(stockName, qty, date, cost) {
 
@@ -582,7 +606,7 @@ $(document).ready(function() {
       $("#stock").val('');
       $("#stock-amount").val('');
       $("#price").val('');
-      $("#date_picker").val('');
+      $("#datepicker").val('');
     }
   })
 
@@ -619,7 +643,7 @@ $(document).ready(function() {
       } else {
         // we found portfolio name and it has stocks in it
         displayData(stocks, portfolioName);
-        // console.log("Stocks are in $('#submit-portfolio').click(function() {" + stocks)
+        showElements();
       }
 
     // clear the portfolio name field
@@ -629,6 +653,7 @@ $(document).ready(function() {
 });
 
 const showAlert = async (title, msg, iconType, showCancelButton, confirmButtonText = 'OK') => {
+  // Displays alerts to screen
 
   const result = await Swal.fire({
     title: title,

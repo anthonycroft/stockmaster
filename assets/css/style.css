@@ -1,10 +1,4 @@
 
-.thumbnail {
-  /* width: 60%; */
-  /* display: inline-block !important; */
-}
-
-
 .jumbotron {
   padding-top: 0 0 !important;
 }
@@ -79,7 +73,7 @@ h4 span {
   font-weight: bold;
   flex-basis: 0;
   flex-grow: 1;
-  text-align: center;
+  /* text-align: center; */
   padding: 5px;
   font-weight: bold;
   display: flex;
@@ -100,45 +94,42 @@ h4 span {
   padding: 10px;
 }
 
-.col-stocks{
-  height: 30px;
-  /* background-color: rgb(10, 59, 88); */
-  /* color: white; */
-  font-weight: bold;
-  flex-basis: 0;
-  flex-grow: 1;
-  text-align: center;
-  padding: 5px;
-  font-weight: bold;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: auto;
+.row-stocks.totals {
+  font-weight: 900;
+  border-bottom: #333 1px solid;
+  border-top: #333 1px solid;
 }
 
-.row.totals {
-  height: 60px;
-  /* background-color: rgb(10, 59, 88); */
-  /* color: white; */
+.col-stocks, .col-totals{
+  height: 20px;
   font-weight: bold;
   flex-basis: 0;
   flex-grow: 1;
-  text-align: center;
   padding: 5px;
   font-weight: bold;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: auto;
+  justify-content: end;
+  text-align: left;
+}
+
+.ticker {
+  justify-content: start;
+  color: blue;
+  padding-left: 5px;
+}
+
+
 /*heatmap*/
+
 .heat-map {
   border-collapse: collapse;
-  margin: 20px;
+  margin-top: 20px;
 }
+
 .heat-map td {
-  width: 30px;
+  /* width: 30px; */
   height: 30px;
-  border: 1px solid gray;
+  border: 2px solid gray;
 }
 
 /*news*/
@@ -194,6 +185,25 @@ h4 span {
 
 .news-link:hover {
   border-bottom: 2px solid #007bff;
+}
+
+
+.col-stocks.gainloss span {
+  color: black;
+}
+.col-stocks.gainlossperc span {
+  color: black;
+}
+
+.col-stocks.gainloss span.negative {
+  color: red;
+}
+.col-stocks.gainlossperc span.negative {
+  color: red;
+}
+
+.row-stocks:nth-child(even) {
+  background-color: #f2f2f2;
 }
 
 
