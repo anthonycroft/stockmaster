@@ -293,8 +293,11 @@ function getHoldings(portfolioName, timeSeriesData) {
 
     // get yesterday's closing price
     var yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const stockPrice = getPrice(yesterday, stock.name);
+
+    // yesterday.setDate(yesterday.getDate() - 1);
+    // const stockPrice = getPrice(yesterday, stock.name);
+    const stockPrice = getLatestPrice(stock.name);
+    console.log("Latest stock price for " + stock.name + " is " + stockPrice)
   
     // add the price to our array of stock objs for calculating performance
     stocks[symbol].price = stockPrice;
@@ -304,21 +307,16 @@ function getHoldings(portfolioName, timeSeriesData) {
 
   return stocks
 
-  function getPrice(date, ticker) {
-    // fetches the price for a particular stock and date from timeSeriesData
-
-    var valuationDate = moment(date).format("YYYY-MM-DD")
-  
-    let filteredData = timeSeriesData.filter(dataPoint => {
-      return moment(dataPoint.date).format("YYYY-MM-DD") === valuationDate &&
-             dataPoint.stock === ticker;
-    });
-  
-    if (filteredData.length > 0) {
-      return filteredData[0].price;
-    } else {
-      return null;
-    }
+  function getLatestPrice(ticker) {
+    // fetches the lates price for a particular stock - which would nromally be yesterday's close,
+    // but could be the prices up to 3 day's ago if a current day is a Sunday or Monday. It could also 
+    // be some date prior to that if stock has stopped trading e.g. it was temporarily suspended. In
+    // some cases latest price might also be null e.g. stock  was delisted
+    
+      const filteredData = timeSeriesData.filter((d) => d.stock === ticker);
+      const sortedData = filteredData.sort((a, b) => b.date - a.date);
+      return sortedData[0].price;
+    
   }
 
 }
